@@ -31,14 +31,12 @@
             min-height: 100vh;
         }
 
-       .invitation-container {
+        .invitation-container {
             width: 100%;
             max-width: 450px;
             background-color: #ffffff;
             box-shadow: 0 0 20px rgba(0,0,0,0.15);
-            overflow-y: scroll; /* 세로 스크롤 허용 */
-            height: 100vh;      /* 높이를 화면에 꽉 차게 */
-            scroll-snap-type: y mandatory; /* 핵심: 한 페이지씩 딱딱 끊김 */
+            overflow: hidden;
             position: relative;
         }
 
@@ -81,7 +79,6 @@
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
         /* --- Section 1: Main Cover --- */
-        <div class="section-cover page">
         .section-cover {
             position: relative;
             width: 100%;
@@ -113,7 +110,6 @@
         .cover-overlay .date-venue { font-size: 0.9rem; letter-spacing: 1px; opacity: 0.8; line-height: 1.6; }
 
         /* --- Section 2: Greeting & Info --- */
-        <div class="section-greeting reveal page">
         .section-greeting { background-color: var(--bg-light); padding: 80px 20px; text-align: center; }
         .greeting-small-photo { width: 120px; height: 120px; object-fit: cover; margin: 0 auto 30px; border-radius: 4px; }
         .greeting-title { font-size: 0.85rem; letter-spacing: 3px; margin-bottom: 40px; color: var(--text-muted); }
@@ -135,7 +131,6 @@
         .d-day-sub { font-size: 0.75rem; letter-spacing: 2px; color: var(--text-muted); }
 
         /* --- Section 3: Calendar --- */
-        <div class="section-calendar reveal page">
         .section-calendar { padding: 80px 20px; background-color: #eae6df; text-align: center; }
         .calendar-month { font-size: 3rem; font-style: italic; color: var(--point-color); margin-bottom: 30px; }
         .calendar-grid {
@@ -161,7 +156,6 @@
         .calendar-date-text { font-size: 0.9rem; letter-spacing: 2px; color: var(--text-dark); }
 
         /* --- Section 4: Gallery --- */
-        <div class="section-gallery reveal page">
         .section-gallery { background-color: #ffffff; padding: 80px 20px; text-align: center; }
         .section-title { font-size: 1.2rem; letter-spacing: 3px; margin-bottom: 40px; text-align: center; color: var(--point-color); }
         
@@ -241,7 +235,6 @@
         .modal-nav.next { right: 0; }
 
         /* --- Section 5: Location & Accounts --- */
-        <div class="section-details reveal page">
         .section-details { background-color: white; padding: 60px 20px; text-align: left; }
         .map-img { width: 100%; border: 1px solid #eee; margin-bottom: 15px; }
         .info-group { margin-bottom: 40px; }
@@ -254,20 +247,6 @@
         }
         .account-info { font-size: 0.85rem; line-height: 1.5; }
         .copy-btn { background-color: white; border: 1px solid #ccc; padding: 5px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
-        /* 페이지 단위 설정 및 페이드 전환 */
-        .page {
-            scroll-snap-align: start; /* 페이지 시작점 정렬 */
-            min-height: 100vh;
-        }
-
-        /* 스크롤 시 페이드 인/아웃 효과 */
-        .reveal {
-            transition: opacity 0.8s ease-in-out, transform 0.8s ease;
-        }
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
     </style>
 </head>
 <body>
