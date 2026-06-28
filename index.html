@@ -21,6 +21,10 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
+        html, body {
+            height: 100%;
+        }
+
         body {
             font-family: 'Gowun Dodum', 'Noto Sans KR', sans-serif;
             background-color: #cccccc;
@@ -29,15 +33,37 @@
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
+            overflow: hidden;
         }
 
         .invitation-container {
             width: 100%;
             max-width: 450px;
+            height: 100vh;
             background-color: #ffffff;
             box-shadow: 0 0 20px rgba(0,0,0,0.15);
-            overflow: hidden;
             position: relative;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 각 섹션을 화면 단위로 스냅. 섹션 내용이 화면보다 길면 섹션 안에서는 자유 스크롤,
+           섹션의 시작/끝에 닿으면 다음/이전 섹션으로 스냅됨 */
+        .section-cover,
+        .section-greeting,
+        .section-calendar,
+        .section-gallery,
+        .section-details {
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+        }
+        .section-greeting,
+        .section-calendar,
+        .section-gallery,
+        .section-details {
+            min-height: 100vh;
         }
 
         .eng-font { font-family: 'Cormorant Garamond', serif; }
