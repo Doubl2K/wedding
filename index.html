@@ -42,6 +42,17 @@
 
         .eng-font { font-family: 'Cormorant Garamond', serif; }
 
+        /* --- 스크롤 애니메이션 (페이드업) --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         /* --- BGM Button --- */
         #bgm-btn {
             position: fixed;
@@ -85,6 +96,13 @@
             background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
             color: white;
             text-align: left;
+            /* 접속 시 스르륵 나타나는 효과 */
+            opacity: 0;
+            animation: fadeInCover 1.5s ease-out 0.3s forwards;
+        }
+        @keyframes fadeInCover {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .cover-overlay .subtitle { font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 5px; opacity: 0.9; }
@@ -98,93 +116,21 @@
         .greeting-text { font-size: 0.95rem; line-height: 2.2; margin-bottom: 50px; color: #444; }
         
         /* 5행시 앞글자 강조 스타일 */
-        .highlight-name {
-            font-weight: 600;
-            color: var(--point-color);
-            font-size: 1.1em;
-        }
+        .highlight-name { font-weight: 600; color: var(--point-color); font-size: 1.1em; }
         
-        /* --- 부모님 및 이름 정렬 --- */
-        .greeting-parents { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 12px; 
-            margin-bottom: 50px; 
-        }
-        .parent-row { 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-        }
-        .parent-names { 
-            font-size: 1rem; 
-            width: 125px; 
-            text-align: left; 
-        }
-        .parent-names span { 
-            font-size: 0.85rem; 
-            color: var(--text-muted); 
-            margin: 0 5px; 
-        }
-        .parent-relation { 
-            font-size: 0.85rem; 
-            color: var(--text-muted); 
-            width: 50px; 
-            text-align: center; 
-            margin: 0 8px; 
-        }
-        .person-name { 
-            font-size: 1.1rem; 
-            font-weight: 500; 
-            color: var(--point-color); 
-            width: 40px; 
-            text-align: left; 
-        }
+        /* 부모님 및 이름 정렬 */
+        .greeting-parents { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 50px; }
+        .parent-row { display: flex; align-items: center; justify-content: center; }
+        .parent-names { font-size: 1rem; width: 125px; text-align: left; }
+        .parent-names span { font-size: 0.85rem; color: var(--text-muted); margin: 0 5px; }
+        .parent-relation { font-size: 0.85rem; color: var(--text-muted); width: 50px; text-align: center; margin: 0 8px; }
+        .person-name { font-size: 1.1rem; font-weight: 500; color: var(--point-color); width: 40px; text-align: left; }
         
         .d-day-box { border-top: 1px solid #e0dcd5; padding-top: 40px; }
         .d-day-title { font-size: 1.5rem; margin-bottom: 10px; color: var(--text-dark); }
         .d-day-sub { font-size: 0.75rem; letter-spacing: 2px; color: var(--text-muted); }
 
-        /* --- Section 3: Gallery --- */
-        .section-gallery { background-color: #ffffff; padding: 80px 20px; text-align: center; }
-        .section-title { font-size: 1.2rem; letter-spacing: 3px; margin-bottom: 40px; text-align: center; color: var(--point-color); }
-        
-        .gallery-main {
-            width: 100%;
-            height: auto;
-            max-height: 600px;
-            object-fit: contain;
-            background-color: var(--bg-light);
-            border-radius: 4px;
-            margin-bottom: 15px;
-            transition: opacity 0.3s ease;
-            touch-action: pan-y;
-        }
-
-        .gallery-thumbnails {
-            display: flex;
-            overflow-x: auto;
-            gap: 10px;
-            padding-bottom: 10px;
-            scroll-snap-type: x mandatory;
-            scrollbar-width: none;
-        }
-        .gallery-thumbnails::-webkit-scrollbar { display: none; }
-
-        .thumb-img {
-            flex: 0 0 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 4px;
-            cursor: pointer;
-            opacity: 0.5;
-            transition: all 0.3s ease;
-            scroll-snap-align: start;
-        }
-        .thumb-img.active { opacity: 1; border: 2px solid var(--point-color); }
-
-        /* --- Section 4: Calendar --- */
+        /* --- Section 3: Calendar --- */
         .section-calendar { padding: 80px 20px; background-color: #eae6df; text-align: center; }
         .calendar-month { font-size: 3rem; font-style: italic; color: var(--point-color); margin-bottom: 30px; }
         .calendar-grid {
@@ -208,6 +154,85 @@
             margin: 0 auto;
         }
         .calendar-date-text { font-size: 0.9rem; letter-spacing: 2px; color: var(--text-dark); }
+
+        /* --- Section 4: Gallery --- */
+        .section-gallery { background-color: #ffffff; padding: 80px 20px; text-align: center; }
+        .section-title { font-size: 1.2rem; letter-spacing: 3px; margin-bottom: 40px; text-align: center; color: var(--point-color); }
+        
+        .gallery-grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+        }
+        .gallery-item {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .gallery-item:active { opacity: 0.7; }
+
+        /* --- Modal (확대 팝업) --- */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            background-color: #f8f7f4;
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .modal-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            color: #555;
+            z-index: 10;
+        }
+        .slider-wrapper {
+            width: 100%;
+            height: 70vh;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+        .slider-track {
+            display: flex;
+            transition: transform 0.3s ease-in-out;
+            height: 100%;
+            width: 100%;
+        }
+        .slider-track img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(0,0,0,0.3);
+            font-size: 2rem;
+            padding: 15px;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .modal-nav.prev { left: 0; }
+        .modal-nav.next { right: 0; }
 
         /* --- Section 5: Location & Accounts --- */
         .section-details { background-color: white; padding: 60px 20px; text-align: left; }
@@ -246,12 +271,11 @@
         </div>
     </div>
 
-    <!-- Section 2: 인사말 및 정보 -->
-    <div class="section-greeting">
+    <!-- Section 2: 인사말 및 정보 (reveal 클래스 추가) -->
+    <div class="section-greeting reveal">
         <p class="greeting-title eng-font">WE'RE GETTING MARRIED</p>
         <img src="1_2.jpg" alt="웨딩 사진" class="greeting-small-photo">
         
-        <!-- 5행시 적용 -->
         <p class="greeting-text">
             <span class="highlight-name">김</span>겸과 황주애, 저희 두 사람이<br>
             <span class="highlight-name">겸</span>손하고 다정한 마음으로 서로를 아끼며 살겠습니다.<br>
@@ -260,7 +284,6 @@
             <span class="highlight-name">애</span>정 어린 마음으로 참석하시어 축복해 주시면 감사하겠습니다.
         </p>
 
-        <!-- 부모님 이름 영역 -->
         <div class="greeting-parents">
             <div class="parent-row">
                 <div class="parent-names">김영무 <span>&middot;</span> 최양심</div>
@@ -285,37 +308,8 @@
         </div>
     </div>
 
-    <!-- Section 3: 슬라이드 갤러리 -->
-    <div class="section-gallery">
-        <h2 class="section-title eng-font">GALLERY</h2>
-        
-        <!-- 중앙 메인 사진 -->
-        <img src="gallery_1.jpg" alt="메인 사진" class="gallery-main" id="main-gallery-img">
-
-        <!-- 기차놀이(슬라이드) 썸네일 -->
-        <div class="gallery-thumbnails">
-            <img src="gallery_1.jpg" class="thumb-img active" onclick="changeImage(this, 'gallery_1.jpg')">
-            <img src="gallery_2.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_2.jpg')">
-            <img src="gallery_3.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_3.jpg')">
-            <img src="gallery_4.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_4.jpg')">
-            <img src="gallery_5.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_5.jpg')">
-            <img src="gallery_6.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_6.jpg')">
-            <img src="gallery_7.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_7.jpg')">
-            <img src="gallery_8.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_8.jpg')">
-            <img src="gallery_9.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_9.jpg')">
-            <img src="gallery_10.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_10.jpg')">
-            <img src="gallery_11.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_11.jpg')">
-            <img src="gallery_12.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_12.jpg')">
-            <img src="gallery_13.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_13.jpg')">
-            <img src="gallery_14.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_14.jpg')">
-            <img src="gallery_15.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_15.jpg')">
-            <img src="gallery_16.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_16.jpg')">
-            <img src="gallery_17.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_17.jpg')">
-        </div>
-    </div>
-
-    <!-- Section 4: 달력 -->
-    <div class="section-calendar">
+    <!-- Section 3: 달력 (reveal 클래스 추가) -->
+    <div class="section-calendar reveal">
         <div class="calendar-month eng-font">9</div>
         <div class="calendar-grid">
             <div class="day-name eng-font">S</div><div class="day-name eng-font">M</div>
@@ -323,11 +317,11 @@
             <div class="day-name eng-font">T</div><div class="day-name eng-font">F</div>
             <div class="day-name eng-font">S</div>
             
-            <div></div><div></div> <!-- 일, 월 비우기 -->
+            <div></div><div></div>
             <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div>
             <div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div>
             <div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div>
-            <div class="highlight">19</div> <!-- 예식일 강조 -->
+            <div class="highlight">19</div>
             <div>20</div><div>21</div><div>22</div><div>23</div><div>24</div><div>25</div><div>26</div>
             <div>27</div><div>28</div><div>29</div><div>30</div>
             <div></div><div></div><div></div>
@@ -335,11 +329,47 @@
         <div class="calendar-date-text eng-font">2026. 9. 19. (SAT) 18:00</div>
     </div>
 
-    <!-- Section 5: 오시는 길 & 마음 전하실 곳 -->
-    <div class="section-details">
+    <!-- Section 4: 갤러리 (reveal 클래스 추가) -->
+    <div class="section-gallery reveal">
+        <h2 class="section-title eng-font">GALLERY</h2>
+        <div class="gallery-grid-container">
+            <img src="gallery_1.jpg" class="gallery-item" onclick="openModal(0)">
+            <img src="gallery_2.jpg" class="gallery-item" onclick="openModal(1)">
+            <img src="gallery_3.jpg" class="gallery-item" onclick="openModal(2)">
+            <img src="gallery_4.jpg" class="gallery-item" onclick="openModal(3)">
+            <img src="gallery_5.jpg" class="gallery-item" onclick="openModal(4)">
+            <img src="gallery_6.jpg" class="gallery-item" onclick="openModal(5)">
+            <img src="gallery_7.jpg" class="gallery-item" onclick="openModal(6)">
+            <img src="gallery_8.jpg" class="gallery-item" onclick="openModal(7)">
+            <img src="gallery_9.jpg" class="gallery-item" onclick="openModal(8)">
+            <img src="gallery_10.jpg" class="gallery-item" onclick="openModal(9)">
+            <img src="gallery_11.jpg" class="gallery-item" onclick="openModal(10)">
+            <img src="gallery_12.jpg" class="gallery-item" onclick="openModal(11)">
+            <img src="gallery_13.jpg" class="gallery-item" onclick="openModal(12)">
+            <img src="gallery_14.jpg" class="gallery-item" onclick="openModal(13)">
+            <img src="gallery_15.jpg" class="gallery-item" onclick="openModal(14)">
+            <img src="gallery_16.jpg" class="gallery-item" onclick="openModal(15)">
+            <img src="gallery_17.jpg" class="gallery-item" onclick="openModal(16)">
+        </div>
+    </div>
+
+    <!-- 확대 사진 팝업 모달창 -->
+    <div id="gallery-modal" class="modal">
+        <div class="modal-header eng-font">
+            <span id="modal-counter">1 / 17</span>
+            <span id="modal-close" onclick="closeModal()" style="cursor:pointer; font-weight: bold;">✕</span>
+        </div>
+        <div class="slider-wrapper" id="slider-wrapper">
+            <div class="slider-track" id="slider-track"></div>
+            <div class="modal-nav prev" onclick="moveSlide(-1)">&#10094;</div>
+            <div class="modal-nav next" onclick="moveSlide(1)">&#10095;</div>
+        </div>
+    </div>
+
+    <!-- Section 5: 오시는 길 & 마음 전하실 곳 (reveal 클래스 추가) -->
+    <div class="section-details reveal">
         <div class="info-group">
             <h2 class="section-title eng-font">LOCATION</h2>
-            <!-- 확장자 jpg로 변경된 약도 이미지 -->
             <img src="image_2.jpg" alt="약도" class="map-img">
             <p style="font-size: 0.85rem; color: #666; margin-bottom: 20px;">주소 : 서울특별시 마포구 성암로 189 중소기업DMC타워 4층</p>
 
@@ -387,6 +417,20 @@
 </div>
 
 <script>
+    // --- 스크롤 부드럽게 나타나는 효과 (Intersection Observer) ---
+    const revealElements = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target); // 한 번 나타나면 유지
+            }
+        });
+    }, {
+        threshold: 0.15 // 화면에 15% 정도 보일 때 애니메이션 시작
+    });
+    revealElements.forEach(el => revealObserver.observe(el));
+
     // --- BGM 컨트롤 ---
     const bgmAudio = document.getElementById("bgm-audio");
     const bgmBtn = document.getElementById("bgm-btn");
@@ -405,60 +449,65 @@
         isPlaying = !isPlaying;
     }
 
-    // --- 갤러리 슬라이드 & 스와이프 컨트롤 ---
-    const mainImg = document.getElementById("main-gallery-img");
-    const thumbnails = document.querySelectorAll('.thumb-img');
-    let currentIndex = 0;
-    
-    const imageList = Array.from(thumbnails).map(thumb => thumb.getAttribute('src'));
-
-    function changeImage(element, imageSrc) {
-        currentIndex = imageList.indexOf(imageSrc);
-        renderGalleryImage();
+    // --- 갤러리 모달 & 슬라이드 ---
+    const totalImages = 17;
+    const modalImageList = [];
+    for(let i=1; i<=totalImages; i++) {
+        modalImageList.push(`gallery_${i}.jpg`);
     }
 
-    function renderGalleryImage() {
-        mainImg.style.opacity = "0.5";
-        setTimeout(() => {
-            mainImg.src = imageList[currentIndex];
-            mainImg.style.opacity = "1";
-        }, 150);
+    let currentIndex = 0;
+    const modal = document.getElementById('gallery-modal');
+    const track = document.getElementById('slider-track');
+    const counter = document.getElementById('modal-counter');
 
-        thumbnails.forEach((img, idx) => {
-            if (idx === currentIndex) {
-                img.classList.add('active');
-                img.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-            } else {
-                img.classList.remove('active');
-            }
-        });
+    modalImageList.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        track.appendChild(img);
+    });
+
+    function openModal(index) {
+        currentIndex = index;
+        updateModal();
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    function moveSlide(step) {
+        currentIndex += step;
+        if (currentIndex < 0) currentIndex = totalImages - 1;
+        if (currentIndex >= totalImages) currentIndex = 0;
+        updateModal();
+    }
+
+    function updateModal() {
+        counter.innerText = `${currentIndex + 1} / ${totalImages}`;
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
     }
 
     let touchStartX = 0;
     let touchEndX = 0;
+    const sliderWrapper = document.getElementById('slider-wrapper');
 
-    mainImg.addEventListener('touchstart', (e) => {
+    sliderWrapper.addEventListener('touchstart', (e) => {
         touchStartX = e.changedTouches[0].screenX;
     }, { passive: true });
 
-    mainImg.addEventListener('touchend', (e) => {
+    sliderWrapper.addEventListener('touchend', (e) => {
         touchEndX = e.changedTouches[0].screenX;
         handleSwipe();
     }, { passive: true });
 
     function handleSwipe() {
         const swipeThreshold = 50; 
-        
         if (touchStartX - touchEndX > swipeThreshold) {
-            if (currentIndex < imageList.length - 1) {
-                currentIndex++;
-                renderGalleryImage();
-            }
+            moveSlide(1); 
         } else if (touchEndX - touchStartX > swipeThreshold) {
-            if (currentIndex > 0) {
-                currentIndex--;
-                renderGalleryImage();
-            }
+            moveSlide(-1); 
         }
     }
 
