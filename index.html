@@ -106,11 +106,12 @@
             width: 100%;
             height: auto;
             max-height: 600px;
-            object-fit: contain; /* 사진 잘림 방지 (원본 비율 유지) */
-            background-color: var(--bg-light); /* 가로/세로 비율에 따른 빈 공간 자연스럽게 채우기 */
+            object-fit: contain;
+            background-color: var(--bg-light);
             border-radius: 4px;
             margin-bottom: 15px;
             transition: opacity 0.3s ease;
+            touch-action: pan-y; /* 수직 스크롤은 허용하되, 수평 스와이프 처리를 위해 추가 */
         }
 
         .gallery-thumbnails {
@@ -119,9 +120,9 @@
             gap: 10px;
             padding-bottom: 10px;
             scroll-snap-type: x mandatory;
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
         }
-        .gallery-thumbnails::-webkit-scrollbar { display: none; } /* Chrome, Safari */
+        .gallery-thumbnails::-webkit-scrollbar { display: none; }
 
         .thumb-img {
             flex: 0 0 80px;
@@ -229,10 +230,10 @@
     <div class="section-gallery">
         <h2 class="section-title eng-font">GALLERY</h2>
         
-        <!-- 중앙 메인 사진 (잘림 방지 수정됨) -->
+        <!-- 중앙 메인 사진 -->
         <img src="gallery_1.jpg" alt="메인 사진" class="gallery-main" id="main-gallery-img">
 
-        <!-- 기차놀이(슬라이드) 썸네일 17장으로 확장 -->
+        <!-- 기차놀이(슬라이드) 썸네일 -->
         <div class="gallery-thumbnails">
             <img src="gallery_1.jpg" class="thumb-img active" onclick="changeImage(this, 'gallery_1.jpg')">
             <img src="gallery_2.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_2.jpg')">
@@ -250,7 +251,7 @@
             <img src="gallery_14.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_14.jpg')">
             <img src="gallery_15.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_15.jpg')">
             <img src="gallery_16.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_16.jpg')">
-            <img src="gallery_0.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_0.jpg')">
+            <img src="gallery_17.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_17.jpg')">
         </div>
     </div>
 
@@ -344,22 +345,70 @@
         isPlaying = !isPlaying;
     }
 
-    // --- 갤러리 슬라이드 컨트롤 ---
+    // --- 갤러리 슬라이드 & 스와이프 컨트롤 ---
+    const mainImg = document.getElementById("main-gallery-img");
+    const thumbnails = document.querySelectorAll('.thumb-img');
+    let currentIndex = 0;
+    
+    // HTML에 작성된 썸네일에서 이미지 소스 목록을 가져옴
+    const imageList = Array.from(thumbnails).map(thumb => thumb.getAttribute('src'));
+
+    // 썸네일 클릭 시 실행되는 함수
     function changeImage(element, imageSrc) {
-        // 메인 이미지 변경
-        const mainImg = document.getElementById("main-gallery-img");
+        currentIndex = imageList.indexOf(imageSrc);
+        renderGalleryImage();
+    }
+
+    // 화면에 메인 이미지와 썸네일을 업데이트하는 공통 함수
+    function renderGalleryImage() {
         mainImg.style.opacity = "0.5";
         setTimeout(() => {
-            mainImg.src = imageSrc;
+            mainImg.src = imageList[currentIndex];
             mainImg.style.opacity = "1";
         }, 150);
 
-        // 썸네일 활성화 상태 변경
-        document.querySelectorAll('.thumb-img').forEach(img => img.classList.remove('active'));
-        element.classList.add('active');
+        thumbnails.forEach((img, idx) => {
+            if (idx === currentIndex) {
+                img.classList.add('active');
+                // 해당 썸네일이 화면 중앙에 오도록 스크롤 이동
+                img.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            } else {
+                img.classList.remove('active');
+            }
+        });
+    }
+
+    // --- 모바일 스와이프 (터치) 이벤트 추가 ---
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    // 터치 시작 지점 저장
+    mainImg.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    // 터치 끝나는 지점 저장 및 스와이프 계산
+    mainImg.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+        const swipeThreshold = 50; // 이 픽셀 이상 스와이프해야 넘어가도록 설정
         
-        // 클릭한 썸네일이 화면 중앙에 오도록 스크롤 이동
-        element.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        if (touchStartX - touchEndX > swipeThreshold) {
+            // 왼쪽으로 밀었을 때 -> 다음 사진
+            if (currentIndex < imageList.length - 1) {
+                currentIndex++;
+                renderGalleryImage();
+            }
+        } else if (touchEndX - touchStartX > swipeThreshold) {
+            // 오른쪽으로 밀었을 때 -> 이전 사진
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderGalleryImage();
+            }
+        }
     }
 
     // --- 정확한 D-Day 계산 ---
