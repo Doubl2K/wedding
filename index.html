@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>김겸 & 황주애 모바일 청첩장</title>
+    
+    <!-- 카카오톡 공유 미리보기(Open Graph) 설정 -->
+    <meta property="og:title" content="김겸 & 황주애 모바일 청첩장">
+    <meta property="og:description" content="26.09.19 저희의 결혼식에 초대합니다.">
+    <meta property="og:image" content="1_2.jpg"> <!-- 공유 시 보여질 대표 사진 파일명 -->
+
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Sans+KR:wght@300;400;500&family=Gowun+Dodum&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -90,9 +96,43 @@
         .greeting-small-photo { width: 120px; height: 120px; object-fit: cover; margin: 0 auto 30px; border-radius: 4px; }
         .greeting-title { font-size: 0.85rem; letter-spacing: 3px; margin-bottom: 40px; color: var(--text-muted); }
         .greeting-text { font-size: 0.95rem; line-height: 2.2; margin-bottom: 50px; color: #444; }
-        .greeting-parents { font-size: 1rem; line-height: 2; margin-bottom: 50px; }
-        .greeting-parents span { font-size: 0.85rem; color: var(--text-muted); margin: 0 5px; }
-        .greeting-parents strong { font-size: 1.1rem; font-weight: 500; color: var(--point-color); margin-left: 5px; }
+        
+        /* --- 부모님 및 이름 정렬 추가 --- */
+        .greeting-parents { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 12px; 
+            margin-bottom: 50px; 
+        }
+        .parent-row { 
+            display: flex; 
+            align-items: center; 
+            width: 260px; 
+        }
+        .parent-names { 
+            font-size: 1rem; 
+            text-align: left; 
+            flex: 1; 
+        }
+        .parent-names span { 
+            font-size: 0.85rem; 
+            color: var(--text-muted); 
+            margin: 0 5px; 
+        }
+        .parent-relation { 
+            font-size: 0.85rem; 
+            color: var(--text-muted); 
+            width: 55px; 
+            text-align: center; 
+        }
+        .person-name { 
+            font-size: 1.1rem; 
+            font-weight: 500; 
+            color: var(--point-color); 
+            width: 45px; 
+            text-align: right; 
+        }
         
         .d-day-box { border-top: 1px solid #e0dcd5; padding-top: 40px; }
         .d-day-title { font-size: 1.5rem; margin-bottom: 10px; color: var(--text-dark); }
@@ -111,7 +151,7 @@
             border-radius: 4px;
             margin-bottom: 15px;
             transition: opacity 0.3s ease;
-            touch-action: pan-y; /* 수직 스크롤은 허용하되, 수평 스와이프 처리를 위해 추가 */
+            touch-action: pan-y;
         }
 
         .gallery-thumbnails {
@@ -210,9 +250,18 @@
             애정 어린 마음으로 참석하시어 축복해 주시면 감사하겠습니다.
         </p>
 
+        <!-- 줄맞춤 적용된 부모님 및 신랑신부 이름 -->
         <div class="greeting-parents">
-            김영무 <span>&middot;</span> 최양심 <span>의 장남</span> <strong>겸</strong><br>
-            황금산 <span>&middot;</span> 김성미 <span>의 차녀</span> <strong>주애</strong>
+            <div class="parent-row">
+                <div class="parent-names">김영무 <span>&middot;</span> 최양심</div>
+                <div class="parent-relation">의 장남</div>
+                <div class="person-name">겸</div>
+            </div>
+            <div class="parent-row">
+                <div class="parent-names">황금산 <span>&middot;</span> 김성미</div>
+                <div class="parent-relation">의 차녀</div>
+                <div class="person-name">주애</div>
+            </div>
         </div>
 
         <div class="greeting-text" style="font-size: 0.9rem;">
@@ -350,16 +399,13 @@
     const thumbnails = document.querySelectorAll('.thumb-img');
     let currentIndex = 0;
     
-    // HTML에 작성된 썸네일에서 이미지 소스 목록을 가져옴
     const imageList = Array.from(thumbnails).map(thumb => thumb.getAttribute('src'));
 
-    // 썸네일 클릭 시 실행되는 함수
     function changeImage(element, imageSrc) {
         currentIndex = imageList.indexOf(imageSrc);
         renderGalleryImage();
     }
 
-    // 화면에 메인 이미지와 썸네일을 업데이트하는 공통 함수
     function renderGalleryImage() {
         mainImg.style.opacity = "0.5";
         setTimeout(() => {
@@ -370,7 +416,6 @@
         thumbnails.forEach((img, idx) => {
             if (idx === currentIndex) {
                 img.classList.add('active');
-                // 해당 썸네일이 화면 중앙에 오도록 스크롤 이동
                 img.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             } else {
                 img.classList.remove('active');
@@ -378,32 +423,27 @@
         });
     }
 
-    // --- 모바일 스와이프 (터치) 이벤트 추가 ---
     let touchStartX = 0;
     let touchEndX = 0;
 
-    // 터치 시작 지점 저장
     mainImg.addEventListener('touchstart', (e) => {
         touchStartX = e.changedTouches[0].screenX;
     }, { passive: true });
 
-    // 터치 끝나는 지점 저장 및 스와이프 계산
     mainImg.addEventListener('touchend', (e) => {
         touchEndX = e.changedTouches[0].screenX;
         handleSwipe();
     }, { passive: true });
 
     function handleSwipe() {
-        const swipeThreshold = 50; // 이 픽셀 이상 스와이프해야 넘어가도록 설정
+        const swipeThreshold = 50; 
         
         if (touchStartX - touchEndX > swipeThreshold) {
-            // 왼쪽으로 밀었을 때 -> 다음 사진
             if (currentIndex < imageList.length - 1) {
                 currentIndex++;
                 renderGalleryImage();
             }
         } else if (touchEndX - touchStartX > swipeThreshold) {
-            // 오른쪽으로 밀었을 때 -> 이전 사진
             if (currentIndex > 0) {
                 currentIndex--;
                 renderGalleryImage();
@@ -413,12 +453,10 @@
 
     // --- 정확한 D-Day 계산 ---
     function updateDday() {
-        // 예식일: 2026년 9월 19일 00시 00분 00초
         const weddingDate = new Date("2026-09-19T00:00:00+09:00").getTime();
         const now = new Date().getTime();
         const distance = weddingDate - now;
         
-        // 남은 일수 계산 (올림 처리하여 정확도 높임)
         const days = Math.ceil(distance / (1000 * 60 * 60 * 24));
 
         if (days < 0) {
