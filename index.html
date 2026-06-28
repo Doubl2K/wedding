@@ -97,7 +97,7 @@
         .greeting-title { font-size: 0.85rem; letter-spacing: 3px; margin-bottom: 40px; color: var(--text-muted); }
         .greeting-text { font-size: 0.95rem; line-height: 2.2; margin-bottom: 50px; color: #444; }
         
-        /* --- 부모님 및 이름 정렬 추가 --- */
+        /* --- 부모님 및 이름 정렬 추가 (간격 수정됨) --- */
         .greeting-parents { 
             display: flex; 
             flex-direction: column; 
@@ -108,12 +108,11 @@
         .parent-row { 
             display: flex; 
             align-items: center; 
-            width: 260px; 
+            width: 250px; /* 전체 너비 */
         }
         .parent-names { 
             font-size: 1rem; 
             text-align: left; 
-            flex: 1; 
         }
         .parent-names span { 
             font-size: 0.85rem; 
@@ -123,14 +122,13 @@
         .parent-relation { 
             font-size: 0.85rem; 
             color: var(--text-muted); 
-            width: 55px; 
-            text-align: center; 
+            margin-left: 6px; /* 부모님 성함에 자연스럽게 붙도록 여백 조절 */
         }
         .person-name { 
             font-size: 1.1rem; 
             font-weight: 500; 
             color: var(--point-color); 
-            width: 45px; 
+            flex: 1; /* 남는 공간을 모두 차지하여 신랑신부 이름만 맨 오른쪽으로 밀어냄 */
             text-align: right; 
         }
         
@@ -138,7 +136,7 @@
         .d-day-title { font-size: 1.5rem; margin-bottom: 10px; color: var(--text-dark); }
         .d-day-sub { font-size: 0.75rem; letter-spacing: 2px; color: var(--text-muted); }
 
-        /* --- Section 3: Gallery (슬라이드 기차놀이 스타일) --- */
+        /* --- Section 3: Gallery --- */
         .section-gallery { background-color: #ffffff; padding: 80px 20px; text-align: center; }
         .section-title { font-size: 1.2rem; letter-spacing: 3px; margin-bottom: 40px; text-align: center; color: var(--point-color); }
         
@@ -250,7 +248,7 @@
             애정 어린 마음으로 참석하시어 축복해 주시면 감사하겠습니다.
         </p>
 
-        <!-- 줄맞춤 적용된 부모님 및 신랑신부 이름 -->
+        <!-- 줄맞춤 및 간격 수정 적용된 부모님 이름 영역 -->
         <div class="greeting-parents">
             <div class="parent-row">
                 <div class="parent-names">김영무 <span>&middot;</span> 최양심</div>
@@ -329,7 +327,7 @@
     <div class="section-details">
         <div class="info-group">
             <h2 class="section-title eng-font">LOCATION</h2>
-            <img src="image_2.png" alt="약도" class="map-img">
+            <img src="image_2.jpg" alt="약도" class="map-img">
             <p style="font-size: 0.85rem; color: #666; margin-bottom: 20px;">주소 : 서울특별시 마포구 성암로 189 중소기업DMC타워 4층</p>
 
             <div class="info-item">
