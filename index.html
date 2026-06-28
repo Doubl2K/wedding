@@ -10,7 +10,7 @@
     <meta property="og:description" content="26.09.19 저희의 결혼식에 초대합니다.">
     <meta property="og:image" content="1_2.jpg"> <!-- 공유 시 보여질 대표 사진 파일명 -->
 
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@1,500;1,600&family=Noto+Sans+KR:wght@300;400;500&family=Gowun+Dodum&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Italiana&family=Noto+Sans+KR:wght@300;400;500&family=Gowun+Dodum&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-light: #f8f7f4;
@@ -106,7 +106,7 @@
         }
 
         .cover-overlay .subtitle { font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 5px; opacity: 0.9; }
-        .cover-overlay .title { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-style: italic; font-weight: 600; margin-bottom: 15px; line-height: 1.1; }
+        .cover-overlay .title { font-family: 'Italiana', serif; font-size: 2.7rem; font-style: normal; font-weight: 400; letter-spacing: 1px; margin-bottom: 15px; line-height: 1.2; }
         .cover-overlay .date-venue { font-size: 0.9rem; letter-spacing: 1px; opacity: 0.8; line-height: 1.6; }
 
         /* --- Section 2: Greeting & Info --- */
@@ -126,7 +126,7 @@
         .parent-relation { font-size: 0.85rem; color: var(--text-muted); width: 50px; text-align: center; margin: 0 8px; }
         .person-name { font-size: 1.1rem; font-weight: 500; color: var(--point-color); width: 40px; text-align: left; }
         
-        .d-day-box { border-top: 1px solid #e0dcd5; padding-top: 40px; }
+        .d-day-box { border-top: 1px solid #d4cec3; margin-top: 40px; padding-top: 35px; }
         .d-day-title { font-size: 1.5rem; margin-bottom: 10px; color: var(--text-dark); }
         .d-day-sub { font-size: 0.75rem; letter-spacing: 2px; color: var(--text-muted); }
 
@@ -362,11 +362,6 @@
             2026년 9월 19일 (토) 오후 6시<br>
             DMC 타워웨딩 펠리체 홀
         </div>
-
-        <div class="d-day-box">
-            <div class="d-day-title eng-font" id="dday-count">D - 00</div>
-            <div class="d-day-sub eng-font">UNTIL THE WEDDING</div>
-        </div>
     </div>
 
     <!-- Section 3: 달력 (reveal 클래스 추가) -->
@@ -388,6 +383,11 @@
             <div></div><div></div><div></div>
         </div>
         <div class="calendar-date-text eng-font">2026. 9. 19. (SAT) 18:00</div>
+
+        <div class="d-day-box">
+            <div class="d-day-title eng-font" id="dday-count">D - 00</div>
+            <div class="d-day-sub eng-font">UNTIL THE WEDDING</div>
+        </div>
     </div>
 
     <!-- Section 4: 갤러리 (reveal 클래스 추가) -->
@@ -528,29 +528,40 @@
         isPlaying = !isPlaying;
     }
 
-    // --- 갤러리 상단 스와이프 슬라이드 (드래그/스와이프 전용, 인디케이터 없음) ---
+    // --- 갤러리 상단 스와이프 슬라이드 (드래그/스와이프 전용, 한 장씩 강제 이동, 인디케이터 없음) ---
     const swipeTrack = document.getElementById('gallery-swipe-track');
     const swipeWrapper = document.getElementById('gallery-swipe-wrapper');
     let swipeIndex = 0;
     const swipeTotal = 17;
+    let isSwipeAnimating = false;
 
     for (let i = 1; i <= swipeTotal; i++) {
         const img = document.createElement('img');
         img.src = `gallery_${i}.jpg`;
-        img.addEventListener('click', () => openModal(i - 1));
+        img.addEventListener('click', () => {
+            if (!isSwipeAnimating) openModal(i - 1);
+        });
         swipeTrack.appendChild(img);
     }
 
     function updateSwipePosition(withTransition = true) {
-        swipeTrack.style.transition = withTransition ? 'transform 0.3s ease-out' : 'none';
+        if (withTransition) {
+            isSwipeAnimating = true;
+            swipeTrack.style.transition = 'transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1)';
+            window.setTimeout(() => { isSwipeAnimating = false; }, 360);
+        } else {
+            swipeTrack.style.transition = 'none';
+        }
         swipeTrack.style.transform = `translateX(-${swipeIndex * 100}%)`;
     }
 
+    // 한 번의 스와이프 제스처당 정확히 한 장만 이동 (강제 스냅)
     function moveSwipe(step) {
+        if (isSwipeAnimating) return;
         swipeIndex += step;
         if (swipeIndex < 0) swipeIndex = 0;
         if (swipeIndex > swipeTotal - 1) swipeIndex = swipeTotal - 1;
-        updateSwipePosition();
+        updateSwipePosition(true);
     }
 
     // 터치(모바일) 드래그
@@ -559,6 +570,7 @@
     let isSwipeTouching = false;
 
     swipeWrapper.addEventListener('touchstart', (e) => {
+        if (isSwipeAnimating) return;
         isSwipeTouching = true;
         swipeTouchStartX = e.touches[0].clientX;
         swipeTouchCurrentX = swipeTouchStartX;
@@ -568,7 +580,11 @@
     swipeWrapper.addEventListener('touchmove', (e) => {
         if (!isSwipeTouching) return;
         swipeTouchCurrentX = e.touches[0].clientX;
-        const deltaPx = swipeTouchCurrentX - swipeTouchStartX;
+        let deltaPx = swipeTouchCurrentX - swipeTouchStartX;
+        // 양 끝에서는 살짝만 따라오도록 저항감 부여
+        if ((swipeIndex === 0 && deltaPx > 0) || (swipeIndex === swipeTotal - 1 && deltaPx < 0)) {
+            deltaPx *= 0.35;
+        }
         const deltaPercent = (deltaPx / swipeWrapper.offsetWidth) * 100;
         swipeTrack.style.transform = `translateX(-${swipeIndex * 100 - deltaPercent}%)`;
     }, { passive: true });
@@ -577,13 +593,13 @@
         if (!isSwipeTouching) return;
         isSwipeTouching = false;
         const deltaPx = swipeTouchCurrentX - swipeTouchStartX;
-        const threshold = swipeWrapper.offsetWidth * 0.15;
-        if (deltaPx < -threshold) {
+        const threshold = swipeWrapper.offsetWidth * 0.12;
+        if (deltaPx < -threshold && swipeIndex < swipeTotal - 1) {
             moveSwipe(1);
-        } else if (deltaPx > threshold) {
+        } else if (deltaPx > threshold && swipeIndex > 0) {
             moveSwipe(-1);
         } else {
-            updateSwipePosition();
+            updateSwipePosition(true);
         }
     });
 
@@ -593,6 +609,7 @@
     let isSwipeMouseDown = false;
 
     swipeWrapper.addEventListener('mousedown', (e) => {
+        if (isSwipeAnimating) return;
         isSwipeMouseDown = true;
         swipeMouseStartX = e.clientX;
         swipeMouseCurrentX = swipeMouseStartX;
@@ -602,7 +619,10 @@
     swipeWrapper.addEventListener('mousemove', (e) => {
         if (!isSwipeMouseDown) return;
         swipeMouseCurrentX = e.clientX;
-        const deltaPx = swipeMouseCurrentX - swipeMouseStartX;
+        let deltaPx = swipeMouseCurrentX - swipeMouseStartX;
+        if ((swipeIndex === 0 && deltaPx > 0) || (swipeIndex === swipeTotal - 1 && deltaPx < 0)) {
+            deltaPx *= 0.35;
+        }
         const deltaPercent = (deltaPx / swipeWrapper.offsetWidth) * 100;
         swipeTrack.style.transform = `translateX(-${swipeIndex * 100 - deltaPercent}%)`;
     });
@@ -611,13 +631,13 @@
         if (!isSwipeMouseDown) return;
         isSwipeMouseDown = false;
         const deltaPx = swipeMouseCurrentX - swipeMouseStartX;
-        const threshold = swipeWrapper.offsetWidth * 0.15;
-        if (deltaPx < -threshold) {
+        const threshold = swipeWrapper.offsetWidth * 0.12;
+        if (deltaPx < -threshold && swipeIndex < swipeTotal - 1) {
             moveSwipe(1);
-        } else if (deltaPx > threshold) {
+        } else if (deltaPx > threshold && swipeIndex > 0) {
             moveSwipe(-1);
         } else {
-            updateSwipePosition();
+            updateSwipePosition(true);
         }
     });
 
