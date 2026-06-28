@@ -3,44 +3,393 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>우리의 결혼식</title>
+    <title>김겸 & 황주애 모바일 청첩장</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Sans+KR:wght@300;400;500&family=Gowun+Dodum&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; padding: 0; background-color: #f9f9f9; text-align: center; }
-        .gallery-container { padding: 20px; }
-        .gallery-img {
+        :root {
+            --bg-light: #f8f7f4;
+            --text-dark: #333333;
+            --text-muted: #888888;
+            --point-color: #b5a695;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Gowun Dodum', 'Noto Sans KR', sans-serif;
+            background-color: #cccccc;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .invitation-container {
+            width: 100%;
+            max-width: 450px;
+            background-color: #ffffff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .eng-font { font-family: 'Cormorant Garamond', serif; }
+
+        /* --- BGM Button --- */
+        #bgm-btn {
+            position: fixed;
+            top: 20px;
+            right: 50%;
+            transform: translateX(205px);
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        @media (max-width: 450px) {
+            #bgm-btn { right: 20px; transform: none; }
+        }
+        .playing { animation: spin 4s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- Section 1: Main Cover --- */
+        .section-cover {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            max-height: 850px;
+            background-image: url('1_2.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .cover-overlay {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%;
+            padding: 40px 30px;
+            background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
+            color: white;
+            text-align: left;
+        }
+
+        .cover-overlay .subtitle { font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 5px; opacity: 0.9; }
+        .cover-overlay .title { font-size: 2.5rem; font-style: italic; margin-bottom: 15px; line-height: 1.1; }
+        .cover-overlay .date-venue { font-size: 0.9rem; letter-spacing: 1px; opacity: 0.8; line-height: 1.6; }
+
+        /* --- Section 2: Greeting & Info --- */
+        .section-greeting { background-color: var(--bg-light); padding: 80px 20px; text-align: center; }
+        .greeting-small-photo { width: 120px; height: 120px; object-fit: cover; margin: 0 auto 30px; border-radius: 4px; }
+        .greeting-title { font-size: 0.85rem; letter-spacing: 3px; margin-bottom: 40px; color: var(--text-muted); }
+        .greeting-text { font-size: 0.95rem; line-height: 2.2; margin-bottom: 50px; color: #444; }
+        .greeting-parents { font-size: 1rem; line-height: 2; margin-bottom: 50px; }
+        .greeting-parents span { font-size: 0.85rem; color: var(--text-muted); margin: 0 5px; }
+        .greeting-parents strong { font-size: 1.1rem; font-weight: 500; color: var(--point-color); margin-left: 5px; }
+        
+        .d-day-box { border-top: 1px solid #e0dcd5; padding-top: 40px; }
+        .d-day-title { font-size: 1.5rem; margin-bottom: 10px; color: var(--text-dark); }
+        .d-day-sub { font-size: 0.75rem; letter-spacing: 2px; color: var(--text-muted); }
+
+        /* --- Section 3: Gallery (슬라이드 기차놀이 스타일) --- */
+        .section-gallery { background-color: #ffffff; padding: 80px 20px; text-align: center; }
+        .section-title { font-size: 1.2rem; letter-spacing: 3px; margin-bottom: 40px; text-align: center; color: var(--point-color); }
+        
+        .gallery-main {
             width: 100%;
             height: auto;
-            object-fit: contain;
-            margin-bottom: 20px;
-            display: block;
-            border-radius: 8px;
+            max-height: 600px;
+            object-fit: contain; /* 사진 잘림 방지 (원본 비율 유지) */
+            background-color: var(--bg-light); /* 가로/세로 비율에 따른 빈 공간 자연스럽게 채우기 */
+            border-radius: 4px;
+            margin-bottom: 15px;
+            transition: opacity 0.3s ease;
         }
+
+        .gallery-thumbnails {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding-bottom: 10px;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none; /* Firefox */
+        }
+        .gallery-thumbnails::-webkit-scrollbar { display: none; } /* Chrome, Safari */
+
+        .thumb-img {
+            flex: 0 0 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: all 0.3s ease;
+            scroll-snap-align: start;
+        }
+        .thumb-img.active { opacity: 1; border: 2px solid var(--point-color); }
+
+        /* --- Section 4: Calendar --- */
+        .section-calendar { padding: 80px 20px; background-color: #eae6df; text-align: center; }
+        .calendar-month { font-size: 3rem; font-style: italic; color: var(--point-color); margin-bottom: 30px; }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px 5px;
+            max-width: 100%;
+            margin: 0 auto 40px;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        .calendar-grid div { display: flex; align-items: center; justify-content: center; height: 30px; }
+        .calendar-grid .day-name { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px; }
+        .calendar-grid .highlight {
+            background-color: var(--point-color);
+            color: white;
+            border-radius: 50%;
+            width: 30px; height: 30px;
+            font-weight: bold;
+            margin: 0 auto;
+        }
+        .calendar-date-text { font-size: 0.9rem; letter-spacing: 2px; color: var(--text-dark); }
+
+        /* --- Section 5: Location & Accounts --- */
+        .section-details { background-color: white; padding: 60px 20px; text-align: left; }
+        .map-img { width: 100%; border: 1px solid #eee; margin-bottom: 15px; }
+        .info-group { margin-bottom: 40px; }
+        .info-item { margin-bottom: 20px; font-size: 0.9rem; line-height: 1.6; }
+        .info-item h3 { font-size: 0.95rem; color: var(--point-color); margin-bottom: 5px; }
+        
+        .account-box {
+            background: var(--bg-light); padding: 15px; border-radius: 8px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .account-info { font-size: 0.85rem; line-height: 1.5; }
+        .copy-btn { background-color: white; border: 1px solid #ccc; padding: 5px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <h1>결혼합니다!</h1>
+<div class="invitation-container">
 
-    <!-- 갤러리 섹션 -->
-    <div class="gallery-container">
-        <img src="gallery_0.jpg" class="gallery-img">
-        <img src="gallery_1.jpg" class="gallery-img">
-        <img src="gallery_2.jpg" class="gallery-img">
-        <img src="gallery_3.jpg" class="gallery-img">
-        <img src="gallery_4.jpg" class="gallery-img">
-        <img src="gallery_5.jpg" class="gallery-img">
-        <img src="gallery_6.jpg" class="gallery-img">
-        <img src="gallery_7.jpg" class="gallery-img">
-        <img src="gallery_8.jpg" class="gallery-img">
-        <img src="gallery_9.jpg" class="gallery-img">
-        <img src="gallery_10.jpg" class="gallery-img">
-        <img src="gallery_11.jpg" class="gallery-img">
-        <img src="gallery_12.jpg" class="gallery-img">
-        <img src="gallery_13.jpg" class="gallery-img">
-        <img src="gallery_14.jpg" class="gallery-img">
-        <img src="gallery_15.jpg" class="gallery-img">
-        <img src="gallery_16.jpg" class="gallery-img">
+    <!-- BGM 오디오 및 버튼 -->
+    <audio id="bgm-audio" loop>
+        <source src="bgm.mp3" type="audio/mpeg">
+    </audio>
+    <div id="bgm-btn" onclick="toggleBGM()">🎵</div>
+
+    <!-- Section 1: 감성 메인 커버 -->
+    <div class="section-cover">
+        <div class="cover-overlay">
+            <p class="subtitle eng-font">THE WEDDING OF</p>
+            <h1 class="title eng-font">Kyeom & Jooaee</h1>
+            <p class="date-venue">
+                2026. 09. 19. 18:00<br>
+                DMC TOWER WEDDING
+            </p>
+        </div>
     </div>
 
+    <!-- Section 2: 인사말 및 정보 -->
+    <div class="section-greeting">
+        <p class="greeting-title eng-font">WE'RE GETTING MARRIED</p>
+        <img src="1_2.jpg" alt="웨딩 사진" class="greeting-small-photo">
+        <p class="greeting-text">
+            김겸과 황주애, 저희 두 사람이<br>
+            겸손하고 다정한 마음으로 서로를 아끼며 살겠습니다.<br>
+            황홀하고 가슴 벅찬 이 새로운 시작의 순간,<br>
+            주인공이 되어 첫걸음을 내딛는 이 뜻깊은 날에<br>
+            애정 어린 마음으로 참석하시어 축복해 주시면 감사하겠습니다.
+        </p>
+
+        <div class="greeting-parents">
+            김영무 <span>&middot;</span> 최양심 <span>의 장남</span> <strong>겸</strong><br>
+            황금산 <span>&middot;</span> 김성미 <span>의 차녀</span> <strong>주애</strong>
+        </div>
+
+        <div class="greeting-text" style="font-size: 0.9rem;">
+            2026년 9월 19일 (토) 오후 6시<br>
+            DMC 타워웨딩 펠리체 홀
+        </div>
+
+        <div class="d-day-box">
+            <div class="d-day-title eng-font" id="dday-count">D - 00</div>
+            <div class="d-day-sub eng-font">UNTIL THE WEDDING</div>
+        </div>
+    </div>
+
+    <!-- Section 3: 슬라이드 갤러리 -->
+    <div class="section-gallery">
+        <h2 class="section-title eng-font">GALLERY</h2>
+        
+        <!-- 중앙 메인 사진 (잘림 방지 수정됨) -->
+        <img src="gallery_1.jpg" alt="메인 사진" class="gallery-main" id="main-gallery-img">
+
+        <!-- 기차놀이(슬라이드) 썸네일 17장으로 확장 -->
+        <div class="gallery-thumbnails">
+            <img src="gallery_1.jpg" class="thumb-img active" onclick="changeImage(this, 'gallery_1.jpg')">
+            <img src="gallery_2.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_2.jpg')">
+            <img src="gallery_3.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_3.jpg')">
+            <img src="gallery_4.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_4.jpg')">
+            <img src="gallery_5.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_5.jpg')">
+            <img src="gallery_6.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_6.jpg')">
+            <img src="gallery_7.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_7.jpg')">
+            <img src="gallery_8.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_8.jpg')">
+            <img src="gallery_9.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_9.jpg')">
+            <img src="gallery_10.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_10.jpg')">
+            <img src="gallery_11.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_11.jpg')">
+            <img src="gallery_12.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_12.jpg')">
+            <img src="gallery_13.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_13.jpg')">
+            <img src="gallery_14.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_14.jpg')">
+            <img src="gallery_15.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_15.jpg')">
+            <img src="gallery_16.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_16.jpg')">
+            <img src="gallery_0.jpg" class="thumb-img" onclick="changeImage(this, 'gallery_17.jpg')">
+        </div>
+    </div>
+
+    <!-- Section 4: 달력 -->
+    <div class="section-calendar">
+        <div class="calendar-month eng-font">9</div>
+        <div class="calendar-grid">
+            <div class="day-name eng-font">S</div><div class="day-name eng-font">M</div>
+            <div class="day-name eng-font">T</div><div class="day-name eng-font">W</div>
+            <div class="day-name eng-font">T</div><div class="day-name eng-font">F</div>
+            <div class="day-name eng-font">S</div>
+            
+            <div></div><div></div> <!-- 일, 월 비우기 -->
+            <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div>
+            <div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div>
+            <div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div>
+            <div class="highlight">19</div> <!-- 예식일 강조 -->
+            <div>20</div><div>21</div><div>22</div><div>23</div><div>24</div><div>25</div><div>26</div>
+            <div>27</div><div>28</div><div>29</div><div>30</div>
+            <div></div><div></div><div></div>
+        </div>
+        <div class="calendar-date-text eng-font">2026. 9. 19. (SAT) 18:00</div>
+    </div>
+
+    <!-- Section 5: 오시는 길 & 마음 전하실 곳 -->
+    <div class="section-details">
+        <div class="info-group">
+            <h2 class="section-title eng-font">LOCATION</h2>
+            <img src="image_2.png" alt="약도" class="map-img">
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 20px;">주소 : 서울특별시 마포구 성암로 189 중소기업DMC타워 4층</p>
+
+            <div class="info-item">
+                <h3>지하철</h3>
+                <p>6호선, 공항철도, 경의중앙선<br>디지털미디어시티역 8번 출구 -&gt; 웨딩홀 연결</p>
+            </div>
+            <div class="info-item">
+                <h3>주차</h3>
+                <p>- 지하 2층 ~ 지하 6층<br>- 무료 주차 : 2시간 (지하 1층 연회장 앞 키오스크 이용)</p>
+            </div>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+
+        <div class="info-group">
+            <h2 class="section-title eng-font">ACCOUNT</h2>
+            <p style="text-align: center; font-size: 0.9rem; margin-bottom: 30px;">축복해주시는 따뜻한 마음을<br>감사히 받겠습니다.</p>
+            
+            <h3 style="font-size: 1rem; margin-bottom: 10px; color: #555;">신랑측 계좌</h3>
+            <div class="account-box">
+                <div class="account-info"><span style="color: #888;">아버지</span> <strong>김영무</strong><br>신한 110-194-437314</div>
+                <button class="copy-btn" onclick="copyAccount('110194437314')">복사</button>
+            </div>
+            <div class="account-box">
+                <div class="account-info"><span style="color: #888;">어머니</span> <strong>최양심</strong><br>농협 116-01-030670</div>
+                <button class="copy-btn" onclick="copyAccount('11601030670')">복사</button>
+            </div>
+            <div class="account-box" style="margin-bottom: 30px;">
+                <div class="account-info"><span style="color: #888;">신랑</span> <strong>김 겸</strong><br>토스뱅크 1000-2985-2801</div>
+                <button class="copy-btn" onclick="copyAccount('100029852801')">복사</button>
+            </div>
+
+            <h3 style="font-size: 1rem; margin-bottom: 10px; color: #555;">신부측 계좌</h3>
+            <div class="account-box">
+                <div class="account-info"><span style="color: #888;">아버지</span> <strong>황금산</strong><br>하나 286-910217-85107</div>
+                <button class="copy-btn" onclick="copyAccount('28691021785107')">복사</button>
+            </div>
+            <div class="account-box">
+                <div class="account-info"><span style="color: #888;">신부</span> <strong>황주애</strong><br>우리 1002-129-148416</div>
+                <button class="copy-btn" onclick="copyAccount('1002129148416')">복사</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- BGM 컨트롤 ---
+    const bgmAudio = document.getElementById("bgm-audio");
+    const bgmBtn = document.getElementById("bgm-btn");
+    let isPlaying = false;
+
+    function toggleBGM() {
+        if (isPlaying) {
+            bgmAudio.pause();
+            bgmBtn.classList.remove("playing");
+            bgmBtn.innerText = "🎵";
+        } else {
+            bgmAudio.play().catch(e => alert("음원을 찾을 수 없거나 브라우저 정책에 의해 차단되었습니다."));
+            bgmBtn.classList.add("playing");
+            bgmBtn.innerText = "⏸️";
+        }
+        isPlaying = !isPlaying;
+    }
+
+    // --- 갤러리 슬라이드 컨트롤 ---
+    function changeImage(element, imageSrc) {
+        // 메인 이미지 변경
+        const mainImg = document.getElementById("main-gallery-img");
+        mainImg.style.opacity = "0.5";
+        setTimeout(() => {
+            mainImg.src = imageSrc;
+            mainImg.style.opacity = "1";
+        }, 150);
+
+        // 썸네일 활성화 상태 변경
+        document.querySelectorAll('.thumb-img').forEach(img => img.classList.remove('active'));
+        element.classList.add('active');
+        
+        // 클릭한 썸네일이 화면 중앙에 오도록 스크롤 이동
+        element.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+
+    // --- 정확한 D-Day 계산 ---
+    function updateDday() {
+        // 예식일: 2026년 9월 19일 00시 00분 00초
+        const weddingDate = new Date("2026-09-19T00:00:00+09:00").getTime();
+        const now = new Date().getTime();
+        const distance = weddingDate - now;
+        
+        // 남은 일수 계산 (올림 처리하여 정확도 높임)
+        const days = Math.ceil(distance / (1000 * 60 * 60 * 24));
+
+        if (days < 0) {
+            document.getElementById("dday-count").innerText = "THANK YOU";
+        } else if (days === 0) {
+            document.getElementById("dday-count").innerText = "D-DAY";
+        } else {
+            document.getElementById("dday-count").innerText = `D - ${days}`;
+        }
+    }
+    updateDday();
+
+    // --- 계좌번호 복사 ---
+    function copyAccount(accountNumber) {
+        navigator.clipboard.writeText(accountNumber).then(() => {
+            alert("계좌번호가 복사되었습니다.");
+        }).catch(() => {
+            alert("복사에 실패했습니다.");
+        });
+    }
+</script>
 </body>
 </html>
