@@ -75,8 +75,7 @@
         @media (max-width: 450px) {
             #bgm-btn { right: 20px; transform: none; }
         }
-        .playing { animation: spin 4s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        /* 아이콘 회전 애니메이션 제거됨 */
 
         /* --- Section 1: Main Cover --- */
         .section-cover {
@@ -515,18 +514,41 @@
     const bgmBtn = document.getElementById("bgm-btn");
     let isPlaying = false;
 
+    function startBGM() {
+        if (isPlaying) return;
+        bgmAudio.play().then(() => {
+            isPlaying = true;
+            bgmBtn.innerText = "⏸️";
+        }).catch(() => {
+            // 자동재생이 브라우저 정책으로 막힌 경우, 사용자의 첫 터치/클릭 시 재생
+        });
+    }
+
     function toggleBGM() {
         if (isPlaying) {
             bgmAudio.pause();
-            bgmBtn.classList.remove("playing");
             bgmBtn.innerText = "🎵";
+            isPlaying = false;
         } else {
             bgmAudio.play().catch(e => alert("음원을 찾을 수 없거나 브라우저 정책에 의해 차단되었습니다."));
-            bgmBtn.classList.add("playing");
             bgmBtn.innerText = "⏸️";
+            isPlaying = true;
         }
-        isPlaying = !isPlaying;
     }
+
+    // 페이지 로드 시 바로 자동재생 시도
+    window.addEventListener('load', startBGM);
+    startBGM();
+
+    // 자동재생이 막힌 브라우저 대응: 사용자의 첫 터치/클릭에서 재생 시작 (음악 버튼 클릭은 제외, 중복 방지)
+    function handleFirstInteraction(e) {
+        if (e.target.closest('#bgm-btn')) return;
+        startBGM();
+        document.removeEventListener('touchstart', handleFirstInteraction);
+        document.removeEventListener('click', handleFirstInteraction);
+    }
+    document.addEventListener('touchstart', handleFirstInteraction, { once: true, passive: true });
+    document.addEventListener('click', handleFirstInteraction, { once: true });
 
     // --- 갤러리 상단 스와이프 슬라이드 (드래그/스와이프 전용, 한 장씩 강제 이동, 인디케이터 없음) ---
     const swipeTrack = document.getElementById('gallery-swipe-track');
