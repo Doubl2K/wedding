@@ -4,76 +4,560 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>김겸 & 황주애 모바일 청첩장</title>
+    
+    <!-- 카카오톡 공유 미리보기(Open Graph) 설정 -->
     <meta property="og:title" content="김겸 & 황주애 모바일 청첩장">
     <meta property="og:description" content="26.09.19 저희의 결혼식에 초대합니다.">
-    <meta property="og:image" content="1_2.jpg">
+    <meta property="og:image" content="1_2.jpg"> <!-- 공유 시 보여질 대표 사진 파일명 -->
+
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Sans+KR:wght@300;400;500&family=Gowun+Dodum&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-light: #f8f7f4; --text-dark: #333333; --text-muted: #888888; --point-color: #b5a695; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body { font-family: 'Gowun Dodum', 'Noto Sans KR', sans-serif; background-color: #333; display: flex; justify-content: center; }
-
-        .invitation-container {
-            width: 100%; max-width: 450px; background-color: #ffffff; height: 100vh; overflow-y: scroll;
-            scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch;
+        :root {
+            --bg-light: #f8f7f4;
+            --text-dark: #333333;
+            --text-muted: #888888;
+            --point-color: #b5a695;
         }
 
-        .page { height: 100vh; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: center; transition: opacity 0.6s ease-in-out; opacity: 1; }
-        .page.faded { opacity: 0.3; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* 섹션 공통 스타일 */
-        .section-content { width: 100%; padding: 20px; text-align: center; }
+        body {
+            font-family: 'Gowun Dodum', 'Noto Sans KR', sans-serif;
+            background-color: #cccccc;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+       .invitation-container {
+            width: 100%;
+            max-width: 450px;
+            background-color: #ffffff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+            overflow-y: scroll; /* 세로 스크롤 허용 */
+            height: 100vh;      /* 높이를 화면에 꽉 차게 */
+            scroll-snap-type: y mandatory; /* 핵심: 한 페이지씩 딱딱 끊김 */
+            position: relative;
+        }
+
         .eng-font { font-family: 'Cormorant Garamond', serif; }
-        .highlight-name { font-weight: 600; color: var(--point-color); font-size: 1.1em; }
 
-        /* 레이아웃 관련 스타일 */
-        .gallery-grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
-        .gallery-item { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 2px; }
-        .modal { display: none; position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 450px; height: 100vh; background: #fff; z-index: 9999; flex-direction: column; justify-content: center; }
+        /* --- 스크롤 애니메이션 (페이드업) --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- BGM Button --- */
+        #bgm-btn {
+            position: fixed;
+            top: 20px;
+            right: 50%;
+            transform: translateX(205px);
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        @media (max-width: 450px) {
+            #bgm-btn { right: 20px; transform: none; }
+        }
+        .playing { animation: spin 4s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- Section 1: Main Cover --- */
+        <div class="section-cover page">
+        .section-cover {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            max-height: 850px;
+            background-image: url('1_2.jpg');
+            background-size: cover;
+            background-position: center;
+        }
         
-        #bgm-btn { position: fixed; top: 20px; right: 20px; z-index: 100; cursor: pointer; background: rgba(255,255,255,0.8); padding: 10px; border-radius: 50%; }
-        .map-img { width: 100%; }
+        .cover-overlay {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%;
+            padding: 40px 30px;
+            background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
+            color: white;
+            text-align: left;
+            /* 접속 시 스르륵 나타나는 효과 */
+            opacity: 0;
+            animation: fadeInCover 1.5s ease-out 0.3s forwards;
+        }
+        @keyframes fadeInCover {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .cover-overlay .subtitle { font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 5px; opacity: 0.9; }
+        .cover-overlay .title { font-size: 2.5rem; font-style: italic; margin-bottom: 15px; line-height: 1.1; }
+        .cover-overlay .date-venue { font-size: 0.9rem; letter-spacing: 1px; opacity: 0.8; line-height: 1.6; }
+
+        /* --- Section 2: Greeting & Info --- */
+        <div class="section-greeting reveal page">
+        .section-greeting { background-color: var(--bg-light); padding: 80px 20px; text-align: center; }
+        .greeting-small-photo { width: 120px; height: 120px; object-fit: cover; margin: 0 auto 30px; border-radius: 4px; }
+        .greeting-title { font-size: 0.85rem; letter-spacing: 3px; margin-bottom: 40px; color: var(--text-muted); }
+        .greeting-text { font-size: 0.95rem; line-height: 2.2; margin-bottom: 50px; color: #444; }
+        
+        /* 5행시 앞글자 강조 스타일 */
+        .highlight-name { font-weight: 600; color: var(--point-color); font-size: 1.1em; }
+        
+        /* 부모님 및 이름 정렬 */
+        .greeting-parents { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 50px; }
+        .parent-row { display: flex; align-items: center; justify-content: center; }
+        .parent-names { font-size: 1rem; width: 125px; text-align: left; }
+        .parent-names span { font-size: 0.85rem; color: var(--text-muted); margin: 0 5px; }
+        .parent-relation { font-size: 0.85rem; color: var(--text-muted); width: 50px; text-align: center; margin: 0 8px; }
+        .person-name { font-size: 1.1rem; font-weight: 500; color: var(--point-color); width: 40px; text-align: left; }
+        
+        .d-day-box { border-top: 1px solid #e0dcd5; padding-top: 40px; }
+        .d-day-title { font-size: 1.5rem; margin-bottom: 10px; color: var(--text-dark); }
+        .d-day-sub { font-size: 0.75rem; letter-spacing: 2px; color: var(--text-muted); }
+
+        /* --- Section 3: Calendar --- */
+        <div class="section-calendar reveal page">
+        .section-calendar { padding: 80px 20px; background-color: #eae6df; text-align: center; }
+        .calendar-month { font-size: 3rem; font-style: italic; color: var(--point-color); margin-bottom: 30px; }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px 5px;
+            max-width: 100%;
+            margin: 0 auto 40px;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        .calendar-grid div { display: flex; align-items: center; justify-content: center; height: 30px; }
+        .calendar-grid .day-name { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px; }
+        .calendar-grid .highlight {
+            background-color: var(--point-color);
+            color: white;
+            border-radius: 50%;
+            width: 30px; height: 30px;
+            font-weight: bold;
+            margin: 0 auto;
+        }
+        .calendar-date-text { font-size: 0.9rem; letter-spacing: 2px; color: var(--text-dark); }
+
+        /* --- Section 4: Gallery --- */
+        <div class="section-gallery reveal page">
+        .section-gallery { background-color: #ffffff; padding: 80px 20px; text-align: center; }
+        .section-title { font-size: 1.2rem; letter-spacing: 3px; margin-bottom: 40px; text-align: center; color: var(--point-color); }
+        
+        .gallery-grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+        }
+        .gallery-item {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .gallery-item:active { opacity: 0.7; }
+
+        /* --- Modal (확대 팝업) --- */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            background-color: #f8f7f4;
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .modal-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            color: #555;
+            z-index: 10;
+        }
+        .slider-wrapper {
+            width: 100%;
+            height: 70vh;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+        .slider-track {
+            display: flex;
+            transition: transform 0.3s ease-in-out;
+            height: 100%;
+            width: 100%;
+        }
+        .slider-track img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(0,0,0,0.3);
+            font-size: 2rem;
+            padding: 15px;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .modal-nav.prev { left: 0; }
+        .modal-nav.next { right: 0; }
+
+        /* --- Section 5: Location & Accounts --- */
+        <div class="section-details reveal page">
+        .section-details { background-color: white; padding: 60px 20px; text-align: left; }
+        .map-img { width: 100%; border: 1px solid #eee; margin-bottom: 15px; }
+        .info-group { margin-bottom: 40px; }
+        .info-item { margin-bottom: 20px; font-size: 0.9rem; line-height: 1.6; }
+        .info-item h3 { font-size: 0.95rem; color: var(--point-color); margin-bottom: 5px; }
+        
+        .account-box {
+            background: var(--bg-light); padding: 15px; border-radius: 8px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .account-info { font-size: 0.85rem; line-height: 1.5; }
+        .copy-btn { background-color: white; border: 1px solid #ccc; padding: 5px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
+        /* 페이지 단위 설정 및 페이드 전환 */
+        .page {
+            scroll-snap-align: start; /* 페이지 시작점 정렬 */
+            min-height: 100vh;
+        }
+
+        /* 스크롤 시 페이드 인/아웃 효과 */
+        .reveal {
+            transition: opacity 0.8s ease-in-out, transform 0.8s ease;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
 
-<div class="invitation-container" id="container">
+<div class="invitation-container">
+
+    <!-- BGM 오디오 및 버튼 -->
+    <audio id="bgm-audio" loop>
+        <source src="bgm.mp3" type="audio/mpeg">
+    </audio>
     <div id="bgm-btn" onclick="toggleBGM()">🎵</div>
 
-    <div class="page" style="background: url('1_2.jpg') center/cover;"></div>
-    
-    <div class="page section-content">
-        <p class="highlight-name">김</p>겸과 황주애... (생략된 기존 내용 여기에 삽입)
+    <!-- Section 1: 감성 메인 커버 -->
+    <div class="section-cover">
+        <div class="cover-overlay">
+            <p class="subtitle eng-font">THE WEDDING OF</p>
+            <h1 class="title eng-font">Kyeom & Jooaee</h1>
+            <p class="date-venue">
+                2026. 09. 19. 18:00<br>
+                DMC TOWER WEDDING
+            </p>
+        </div>
     </div>
 
-    <div class="page section-content"> 달력 내용 </div>
+    <!-- Section 2: 인사말 및 정보 (reveal 클래스 추가) -->
+    <div class="section-greeting reveal">
+        <p class="greeting-title eng-font">WE'RE GETTING MARRIED</p>
+        <img src="1_2.jpg" alt="웨딩 사진" class="greeting-small-photo">
+        
+        <p class="greeting-text">
+            <span class="highlight-name">김</span>겸과 황주애, 저희 두 사람이<br>
+            <span class="highlight-name">겸</span>손하고 다정한 마음으로 서로를 아끼며 살겠습니다.<br>
+            <span class="highlight-name">황</span>홀하고 가슴 벅찬 이 새로운 시작의 순간,<br>
+            <span class="highlight-name">주</span>인공이 되어 첫걸음을 내딛는 이 뜻깊은 날에<br>
+            <span class="highlight-name">애</span>정 어린 마음으로 참석하시어 축복해 주시면 감사하겠습니다.
+        </p>
 
-    <div class="page section-content">
-        <div class="gallery-grid-container">
+        <div class="greeting-parents">
+            <div class="parent-row">
+                <div class="parent-names">김영무 <span>&middot;</span> 최양심</div>
+                <div class="parent-relation">의 장남</div>
+                <div class="person-name">겸</div>
             </div>
+            <div class="parent-row">
+                <div class="parent-names">황금산 <span>&middot;</span> 김성미</div>
+                <div class="parent-relation">의 차녀</div>
+                <div class="person-name">주애</div>
+            </div>
+        </div>
+
+        <div class="greeting-text" style="font-size: 0.9rem;">
+            2026년 9월 19일 (토) 오후 6시<br>
+            DMC 타워웨딩 펠리체 홀
+        </div>
+
+        <div class="d-day-box">
+            <div class="d-day-title eng-font" id="dday-count">D - 00</div>
+            <div class="d-day-sub eng-font">UNTIL THE WEDDING</div>
+        </div>
     </div>
 
-    <div class="page section-content"> 내용 </div>
+    <!-- Section 3: 달력 (reveal 클래스 추가) -->
+    <div class="section-calendar reveal">
+        <div class="calendar-month eng-font">9</div>
+        <div class="calendar-grid">
+            <div class="day-name eng-font">S</div><div class="day-name eng-font">M</div>
+            <div class="day-name eng-font">T</div><div class="day-name eng-font">W</div>
+            <div class="day-name eng-font">T</div><div class="day-name eng-font">F</div>
+            <div class="day-name eng-font">S</div>
+            
+            <div></div><div></div>
+            <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div>
+            <div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div>
+            <div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div>
+            <div class="highlight">19</div>
+            <div>20</div><div>21</div><div>22</div><div>23</div><div>24</div><div>25</div><div>26</div>
+            <div>27</div><div>28</div><div>29</div><div>30</div>
+            <div></div><div></div><div></div>
+        </div>
+        <div class="calendar-date-text eng-font">2026. 9. 19. (SAT) 18:00</div>
+    </div>
+
+    <!-- Section 4: 갤러리 (reveal 클래스 추가) -->
+    <div class="section-gallery reveal">
+        <h2 class="section-title eng-font">GALLERY</h2>
+        <div class="gallery-grid-container">
+            <img src="gallery_1.jpg" class="gallery-item" onclick="openModal(0)">
+            <img src="gallery_2.jpg" class="gallery-item" onclick="openModal(1)">
+            <img src="gallery_3.jpg" class="gallery-item" onclick="openModal(2)">
+            <img src="gallery_4.jpg" class="gallery-item" onclick="openModal(3)">
+            <img src="gallery_5.jpg" class="gallery-item" onclick="openModal(4)">
+            <img src="gallery_6.jpg" class="gallery-item" onclick="openModal(5)">
+            <img src="gallery_7.jpg" class="gallery-item" onclick="openModal(6)">
+            <img src="gallery_8.jpg" class="gallery-item" onclick="openModal(7)">
+            <img src="gallery_9.jpg" class="gallery-item" onclick="openModal(8)">
+            <img src="gallery_10.jpg" class="gallery-item" onclick="openModal(9)">
+            <img src="gallery_11.jpg" class="gallery-item" onclick="openModal(10)">
+            <img src="gallery_12.jpg" class="gallery-item" onclick="openModal(11)">
+            <img src="gallery_13.jpg" class="gallery-item" onclick="openModal(12)">
+            <img src="gallery_14.jpg" class="gallery-item" onclick="openModal(13)">
+            <img src="gallery_15.jpg" class="gallery-item" onclick="openModal(14)">
+            <img src="gallery_16.jpg" class="gallery-item" onclick="openModal(15)">
+            <img src="gallery_17.jpg" class="gallery-item" onclick="openModal(16)">
+        </div>
+    </div>
+
+    <!-- 확대 사진 팝업 모달창 -->
+    <div id="gallery-modal" class="modal">
+        <div class="modal-header eng-font">
+            <span id="modal-counter">1 / 17</span>
+            <span id="modal-close" onclick="closeModal()" style="cursor:pointer; font-weight: bold;">✕</span>
+        </div>
+        <div class="slider-wrapper" id="slider-wrapper">
+            <div class="slider-track" id="slider-track"></div>
+            <div class="modal-nav prev" onclick="moveSlide(-1)">&#10094;</div>
+            <div class="modal-nav next" onclick="moveSlide(1)">&#10095;</div>
+        </div>
+    </div>
+
+    <!-- Section 5: 오시는 길 & 마음 전하실 곳 (reveal 클래스 추가) -->
+    <div class="section-details reveal">
+        <div class="info-group">
+            <h2 class="section-title eng-font">LOCATION</h2>
+            <img src="image_2.jpg" alt="약도" class="map-img">
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 20px;">주소 : 서울특별시 마포구 성암로 189 중소기업DMC타워 4층</p>
+
+            <div class="info-item">
+                <h3>지하철</h3>
+                <p>6호선, 공항철도, 경의중앙선<br>디지털미디어시티역 8번 출구 -&gt; 웨딩홀 연결</p>
+            </div>
+            <div class="info-item">
+                <h3>주차</h3>
+                <p>- 지하 2층 ~ 지하 6층<br>- 무료 주차 : 2시간 (지하 1층 연회장 앞 키오스크 이용)</p>
+            </div>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+
+        <div class="info-group">
+            <h2 class="section-title eng-font">ACCOUNT</h2>
+            <p style="text-align: center; font-size: 0.9rem; margin-bottom: 30px;">축복해주시는 따뜻한 마음을<br>감사히 받겠습니다.</p>
+            
+            <h3 style="font-size: 1rem; margin-bottom: 10px; color: #555;">신랑측 계좌</h3>
+            <div class="account-box">
+                <div class="account-info"><span style="color: #888;">아버지</span> <strong>김영무</strong><br>신한 110-194-437314</div>
+                <button class="copy-btn" onclick="copyAccount('110194437314')">복사</button>
+            </div>
+            <div class="account-box">
+                <div class="account-info"><span style="color: #888;">어머니</span> <strong>최양심</strong><br>농협 116-01-030670</div>
+                <button class="copy-btn" onclick="copyAccount('11601030670')">복사</button>
+            </div>
+            <div class="account-box" style="margin-bottom: 30px;">
+                <div class="account-info"><span style="color: #888;">신랑</span> <strong>김 겸</strong><br>토스뱅크 1000-2985-2801</div>
+                <button class="copy-btn" onclick="copyAccount('100029852801')">복사</button>
+            </div>
+
+            <h3 style="font-size: 1rem; margin-bottom: 10px; color: #555;">신부측 계좌</h3>
+            <div class="account-box">
+                <div class="account-info"><span style="color: #888;">아버지</span> <strong>황금산</strong><br>하나 286-910217-85107</div>
+                <button class="copy-btn" onclick="copyAccount('28691021785107')">복사</button>
+            </div>
+            <div class="account-box">
+                <div class="account-info"><span style="color: #888;">신부</span> <strong>황주애</strong><br>우리 1002-129-148416</div>
+                <button class="copy-btn" onclick="copyAccount('1002129148416')">복사</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-    // 페이지별 페이드 효과
-    const container = document.getElementById('container');
-    const pages = document.querySelectorAll('.page');
-
-    container.addEventListener('scroll', () => {
-        pages.forEach(page => {
-            const rect = page.getBoundingClientRect();
-            if (rect.top > -200 && rect.top < 200) {
-                page.classList.remove('faded');
-            } else {
-                page.classList.add('faded');
+    // --- 스크롤 부드럽게 나타나는 효과 (Intersection Observer) ---
+    const revealElements = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target); // 한 번 나타나면 유지
             }
         });
+    }, {
+        threshold: 0.15 // 화면에 15% 정도 보일 때 애니메이션 시작
+    });
+    revealElements.forEach(el => revealObserver.observe(el));
+
+    // --- BGM 컨트롤 ---
+    const bgmAudio = document.getElementById("bgm-audio");
+    const bgmBtn = document.getElementById("bgm-btn");
+    let isPlaying = false;
+
+    function toggleBGM() {
+        if (isPlaying) {
+            bgmAudio.pause();
+            bgmBtn.classList.remove("playing");
+            bgmBtn.innerText = "🎵";
+        } else {
+            bgmAudio.play().catch(e => alert("음원을 찾을 수 없거나 브라우저 정책에 의해 차단되었습니다."));
+            bgmBtn.classList.add("playing");
+            bgmBtn.innerText = "⏸️";
+        }
+        isPlaying = !isPlaying;
+    }
+
+    // --- 갤러리 모달 & 슬라이드 ---
+    const totalImages = 17;
+    const modalImageList = [];
+    for(let i=1; i<=totalImages; i++) {
+        modalImageList.push(`gallery_${i}.jpg`);
+    }
+
+    let currentIndex = 0;
+    const modal = document.getElementById('gallery-modal');
+    const track = document.getElementById('slider-track');
+    const counter = document.getElementById('modal-counter');
+
+    modalImageList.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        track.appendChild(img);
     });
 
-    function toggleBGM() { /* 이전 BGM 로직 동일 */ }
+    function openModal(index) {
+        currentIndex = index;
+        updateModal();
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    function moveSlide(step) {
+        currentIndex += step;
+        if (currentIndex < 0) currentIndex = totalImages - 1;
+        if (currentIndex >= totalImages) currentIndex = 0;
+        updateModal();
+    }
+
+    function updateModal() {
+        counter.innerText = `${currentIndex + 1} / ${totalImages}`;
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+    }
+
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const sliderWrapper = document.getElementById('slider-wrapper');
+
+    sliderWrapper.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    sliderWrapper.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+        const swipeThreshold = 50; 
+        if (touchStartX - touchEndX > swipeThreshold) {
+            moveSlide(1); 
+        } else if (touchEndX - touchStartX > swipeThreshold) {
+            moveSlide(-1); 
+        }
+    }
+
+    // --- 정확한 D-Day 계산 ---
+    function updateDday() {
+        const weddingDate = new Date("2026-09-19T00:00:00+09:00").getTime();
+        const now = new Date().getTime();
+        const distance = weddingDate - now;
+        
+        const days = Math.ceil(distance / (1000 * 60 * 60 * 24));
+
+        if (days < 0) {
+            document.getElementById("dday-count").innerText = "THANK YOU";
+        } else if (days === 0) {
+            document.getElementById("dday-count").innerText = "D-DAY";
+        } else {
+            document.getElementById("dday-count").innerText = `D - ${days}`;
+        }
+    }
+    updateDday();
+
+    // --- 계좌번호 복사 ---
+    function copyAccount(accountNumber) {
+        navigator.clipboard.writeText(accountNumber).then(() => {
+            alert("계좌번호가 복사되었습니다.");
+        }).catch(() => {
+            alert("복사에 실패했습니다.");
+        });
+    }
 </script>
 </body>
 </html>
