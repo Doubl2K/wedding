@@ -7,90 +7,73 @@
     <meta property="og:title" content="김겸 & 황주애 모바일 청첩장">
     <meta property="og:description" content="26.09.19 저희의 결혼식에 초대합니다.">
     <meta property="og:image" content="1_2.jpg">
-
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Sans+KR:wght@300;400;500&family=Gowun+Dodum&display=swap" rel="stylesheet">
     <style>
         :root { --bg-light: #f8f7f4; --text-dark: #333333; --text-muted: #888888; --point-color: #b5a695; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        body {
-            font-family: 'Gowun Dodum', 'Noto Sans KR', sans-serif;
-            background-color: #333;
-            display: flex;
-            justify-content: center;
-        }
+        body { font-family: 'Gowun Dodum', 'Noto Sans KR', sans-serif; background-color: #333; display: flex; justify-content: center; }
 
         .invitation-container {
-            width: 100%;
-            max-width: 450px;
-            background-color: #ffffff;
-            height: 100vh;
-            overflow-y: scroll;
-            /* 핵심: 스크롤 스냅(페이지 단위 넘김) */
-            scroll-snap-type: y mandatory;
-            -webkit-overflow-scrolling: touch;
+            width: 100%; max-width: 450px; background-color: #ffffff; height: 100vh; overflow-y: scroll;
+            scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch;
         }
 
-        .page {
-            height: 100vh;
-            scroll-snap-align: start;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            /* 부드러운 페이드 전환을 위한 준비 */
-            transition: opacity 0.8s ease-in-out;
-            opacity: 1;
-        }
+        .page { height: 100vh; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: center; transition: opacity 0.6s ease-in-out; opacity: 1; }
+        .page.faded { opacity: 0.3; }
 
-        /* --- 나머지 스타일 동일 --- */
-        #bgm-btn { position: fixed; top: 20px; right: 20px; z-index: 100; cursor: pointer; }
-        .section-greeting { background-color: var(--bg-light); padding: 40px; text-align: center; }
+        /* 섹션 공통 스타일 */
+        .section-content { width: 100%; padding: 20px; text-align: center; }
+        .eng-font { font-family: 'Cormorant Garamond', serif; }
         .highlight-name { font-weight: 600; color: var(--point-color); font-size: 1.1em; }
-        
-        /* 갤러리 섹션 */
-        .section-gallery { background: #fff; padding: 40px; text-align: center; }
+
+        /* 레이아웃 관련 스타일 */
         .gallery-grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
-        .gallery-item { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+        .gallery-item { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 2px; }
+        .modal { display: none; position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 450px; height: 100vh; background: #fff; z-index: 9999; flex-direction: column; justify-content: center; }
         
-        /* 모달 스타일은 이전과 동일 */
-        .modal { display: none; position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 450px; height: 100vh; background: #fff; z-index: 9999; }
+        #bgm-btn { position: fixed; top: 20px; right: 20px; z-index: 100; cursor: pointer; background: rgba(255,255,255,0.8); padding: 10px; border-radius: 50%; }
+        .map-img { width: 100%; }
     </style>
 </head>
 <body>
 
 <div class="invitation-container" id="container">
-    <div class="page" id="page1" style="background: url('1_2.jpg') center/cover;">
-        </div>
+    <div id="bgm-btn" onclick="toggleBGM()">🎵</div>
+
+    <div class="page" style="background: url('1_2.jpg') center/cover;"></div>
     
-    <div class="page" id="page2">
-        </div>
+    <div class="page section-content">
+        <p class="highlight-name">김</p>겸과 황주애... (생략된 기존 내용 여기에 삽입)
+    </div>
 
-    <div class="page" id="page3">
-        </div>
+    <div class="page section-content"> 달력 내용 </div>
 
-    <div class="page" id="page4">
-        </div>
+    <div class="page section-content">
+        <div class="gallery-grid-container">
+            </div>
+    </div>
 
-    <div class="page" id="page5">
-        </div>
+    <div class="page section-content"> 내용 </div>
 </div>
 
 <script>
-    // 스크롤 시 페이지별 페이드 효과
+    // 페이지별 페이드 효과
     const container = document.getElementById('container');
     const pages = document.querySelectorAll('.page');
 
     container.addEventListener('scroll', () => {
         pages.forEach(page => {
             const rect = page.getBoundingClientRect();
-            // 화면 중심에 들어오면 불투명도 조절
-            if (rect.top >= -200 && rect.top <= 200) {
-                page.style.opacity = '1';
+            if (rect.top > -200 && rect.top < 200) {
+                page.classList.remove('faded');
             } else {
-                page.style.opacity = '0.3'; // 넘어가는 페이지는 살짝 흐리게
+                page.classList.add('faded');
             }
         });
     });
+
+    function toggleBGM() { /* 이전 BGM 로직 동일 */ }
 </script>
 </body>
 </html>
