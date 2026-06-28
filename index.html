@@ -32,14 +32,16 @@
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            min-height: 100vh;
+            min-height: 100vh; /* 구형 브라우저 폴백 */
+            min-height: 100dvh;
             overflow: hidden;
         }
 
         .invitation-container {
             width: 100%;
             max-width: 450px;
-            height: 100vh;
+            height: 100vh; /* 구형 브라우저 폴백 */
+            height: 100dvh; /* iOS Safari 등의 동적 주소창/툴바를 고려한 실제 보이는 높이 */
             background-color: #ffffff;
             box-shadow: 0 0 20px rgba(0,0,0,0.15);
             position: relative;
@@ -59,7 +61,8 @@
         .section-calendar,
         .section-gallery,
         .section-details {
-            min-height: 100vh;
+            min-height: 100vh; /* 구형 브라우저 폴백 */
+            min-height: 100dvh;
         }
 
         .eng-font { font-family: 'Cormorant Garamond', serif; }
@@ -103,7 +106,8 @@
         .section-cover {
             position: relative;
             width: 100%;
-            height: 100vh;
+            height: 100vh; /* 구형 브라우저 폴백 */
+            height: 100dvh;
             max-height: 850px;
             background-image: url('1_2.jpg');
             background-size: cover;
@@ -228,7 +232,8 @@
             transform: translateX(-50%);
             width: 100%;
             max-width: 450px;
-            height: 100vh;
+            height: 100vh; /* 구형 브라우저 폴백 */
+            height: 100dvh;
             background-color: #f8f7f4;
             z-index: 9999;
             flex-direction: column;
@@ -829,16 +834,17 @@
 
     function getCurrentSectionIndex() {
         const scrollTop = scrollContainer.scrollTop;
-        let closestIndex = 0;
-        let closestDistance = Infinity;
-        snapSections.forEach((section, i) => {
-            const dist = Math.abs(section.offsetTop - scrollTop);
-            if (dist < closestDistance) {
-                closestDistance = dist;
-                closestIndex = i;
+        // 스크롤 위치(상단 기준 + 1px 여유)가 실제로 속해있는 섹션을 찾는다.
+        // 마지막에 속하는 섹션을 기준으로 판정해서, 경계값에서도 다음 섹션으로 정확히 넘어간다.
+        let currentIndex = 0;
+        for (let i = 0; i < snapSections.length; i++) {
+            if (snapSections[i].offsetTop <= scrollTop + 1) {
+                currentIndex = i;
+            } else {
+                break;
             }
-        });
-        return closestIndex;
+        }
+        return currentIndex;
     }
 
     function isSectionFullyScrolled(section, direction) {
@@ -847,13 +853,14 @@
         const sectionBottom = sectionTop + section.offsetHeight;
         const viewTop = scrollContainer.scrollTop;
         const viewBottom = viewTop + scrollContainer.clientHeight;
+        const EDGE_TOLERANCE = 8; // 모바일 동적 툴바 등의 미세한 높이 변동을 흡수하기 위한 여유값
 
         if (direction > 0) {
-            // 섹션의 바닥까지 다 보였는지 (여유 2px)
-            return viewBottom >= sectionBottom - 2;
+            // 섹션의 바닥까지 다 보였는지
+            return viewBottom >= sectionBottom - EDGE_TOLERANCE;
         } else {
-            // 섹션의 상단까지 다 보였는지 (여유 2px)
-            return viewTop <= sectionTop + 2;
+            // 섹션의 상단까지 다 보였는지
+            return viewTop <= sectionTop + EDGE_TOLERANCE;
         }
     }
 
@@ -899,10 +906,12 @@
     // 터치 스와이프 (모바일)
     let touchStartY = 0;
     let touchStartedInGallerySwipe = false;
+    let touchGestureDirection = 0; // 이 터치 제스처에서 막아야 할 방향 (0 = 막지 않음)
 
     scrollContainer.addEventListener('touchstart', (e) => {
         touchStartY = e.touches[0].clientY;
         touchStartedInGallerySwipe = !!e.target.closest('.gallery-swipe-wrapper') || !!e.target.closest('.modal');
+        touchGestureDirection = 0;
     }, { passive: true });
 
     scrollContainer.addEventListener('touchmove', (e) => {
@@ -913,26 +922,44 @@
         }
         const currentY = e.touches[0].clientY;
         const deltaY = touchStartY - currentY; // 양수: 위로 스와이프(아래로 이동), 음수: 아래로 스와이프(위로 이동)
-
-        if (Math.abs(deltaY) < 40) return; // 너무 작은 움직임은 무시
+        if (deltaY === 0) return;
 
         const direction = deltaY > 0 ? 1 : -1;
+
+        // 이미 이번 제스처에서 이 방향으로 막기로 확정된 경우: 처음부터 계속 preventDefault
+        // (작은 움직임에서 네이티브 스크롤이 먼저 시작되어 나중에 막지 못하는 문제 방지)
+        if (touchGestureDirection === direction) {
+            e.preventDefault();
+            if (Math.abs(deltaY) >= 40) {
+                const currentIndex = getCurrentSectionIndex();
+                const nextIndex = currentIndex + direction;
+                if (nextIndex >= 0 && nextIndex < snapSections.length) {
+                    goToSection(nextIndex);
+                }
+                touchGestureDirection = 0;
+            }
+            return;
+        }
+
         const currentIndex = getCurrentSectionIndex();
         const currentSection = snapSections[currentIndex];
 
-        // 섹션 내부에 더 스크롤할 여유가 있으면 자유 스크롤 허용 (preventDefault 안 함)
+        // 섹션 내부에 더 스크롤할 여유가 있으면 자유 스크롤 허용
         if (!isSectionFullyScrolled(currentSection, direction)) {
             return;
         }
 
-        const nextIndex = currentIndex + direction;
-        if (nextIndex < 0 || nextIndex >= snapSections.length) {
-            return;
-        }
-
+        // 섹션 끝에 도달한 상태 → 이 방향 제스처는 처음부터 네이티브 스크롤을 막고 스냅으로 처리
+        touchGestureDirection = direction;
         e.preventDefault();
-        goToSection(nextIndex);
-        touchStartY = currentY; // 같은 제스처로 중복 트리거 방지
+
+        if (Math.abs(deltaY) >= 40) {
+            const nextIndex = currentIndex + direction;
+            if (nextIndex >= 0 && nextIndex < snapSections.length) {
+                goToSection(nextIndex);
+            }
+            touchGestureDirection = 0;
+        }
     }, { passive: false });
 
     // 키보드 방향키 (PC 접근성)
