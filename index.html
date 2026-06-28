@@ -97,7 +97,7 @@
         .greeting-title { font-size: 0.85rem; letter-spacing: 3px; margin-bottom: 40px; color: var(--text-muted); }
         .greeting-text { font-size: 0.95rem; line-height: 2.2; margin-bottom: 50px; color: #444; }
         
-        /* --- 부모님 및 이름 정렬 추가 (간격 및 가운데 정렬 수정됨) --- */
+        /* --- 부모님 및 이름 정렬 --- */
         .greeting-parents { 
             display: flex; 
             flex-direction: column; 
@@ -112,7 +112,7 @@
         }
         .parent-names { 
             font-size: 1rem; 
-            width: 125px; /* 부모님 성함 영역 너비 고정으로 줄맞춤 */
+            width: 125px; 
             text-align: left; 
         }
         .parent-names span { 
@@ -125,14 +125,14 @@
             color: var(--text-muted); 
             width: 50px; 
             text-align: center; 
-            margin: 0 8px; /* 자연스럽게 붙도록 여백 조절 */
+            margin: 0 8px; 
         }
         .person-name { 
             font-size: 1.1rem; 
             font-weight: 500; 
             color: var(--point-color); 
             width: 40px; 
-            text-align: left; /* 신랑/신부 이름(겸/주애) 시작점을 동일하게 맞춤 */
+            text-align: left; 
         }
         
         .d-day-box { border-top: 1px solid #e0dcd5; padding-top: 40px; }
@@ -251,7 +251,7 @@
             애정 어린 마음으로 참석하시어 축복해 주시면 감사하겠습니다.
         </p>
 
-        <!-- 줄맞춤 및 간격/가운데 정렬이 적용된 부모님 이름 영역 -->
+        <!-- 부모님 이름 영역 -->
         <div class="greeting-parents">
             <div class="parent-row">
                 <div class="parent-names">김영무 <span>&middot;</span> 최양심</div>
@@ -330,7 +330,8 @@
     <div class="section-details">
         <div class="info-group">
             <h2 class="section-title eng-font">LOCATION</h2>
-            <img src="image_2.png" alt="약도" class="map-img">
+            <!-- 확장자 jpg로 변경된 약도 이미지 -->
+            <img src="image_2.jpg" alt="약도" class="map-img">
             <p style="font-size: 0.85rem; color: #666; margin-bottom: 20px;">주소 : 서울특별시 마포구 성암로 189 중소기업DMC타워 4층</p>
 
             <div class="info-item">
