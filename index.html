@@ -217,11 +217,10 @@
             /* 가운데 사진: 전체 너비의 58%로 축소, 양옆 사진: 살짝 보임 */
             width: 58%;
             flex-shrink: 0;
-            aspect-ratio: 3 / 4;
+            height: auto;
+            max-height: 65vh;
             object-fit: contain;
-            background-color: #f5f4f2;
             cursor: pointer;
-            border-radius: 6px;
             -webkit-user-select: none;
             -webkit-touch-callout: none;
             user-select: none;
@@ -237,11 +236,17 @@
             opacity: 1;
         }
 
+        .gallery-grid-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
         .gallery-grid-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 4px;
-            padding: 0 20px;
+            flex: 1;
         }
         .gallery-item {
             width: 100%;
@@ -255,24 +260,23 @@
         .gallery-item:active { opacity: 0.7; }
         .gallery-item.hidden { display: none; }
 
-        /* 더보기 버튼 */
-        .gallery-more-btn {
-            display: block;
-            margin: 20px 20px 0;
-            padding: 14px;
+        /* 갤러리 페이지 넘기기 좌우 화살표 */
+        .gallery-nav-arrow {
             background: none;
-            border: 1px solid #d4cec3;
-            border-radius: 6px;
-            font-family: 'Gowun Dodum', 'Noto Sans KR', sans-serif;
-            font-size: 0.9rem;
-            color: #888;
-            letter-spacing: 2px;
+            border: none;
+            color: #b5a695;
+            font-size: 1.2rem;
+            padding: 0 8px;
             cursor: pointer;
-            width: calc(100% - 40px);
-            text-align: center;
-            transition: background 0.2s;
+            flex-shrink: 0;
+            line-height: 1;
+            transition: opacity 0.2s;
         }
-        .gallery-more-btn:active { background: #f5f3f0; }
+        .gallery-nav-arrow:active { opacity: 0.5; }
+        .gallery-nav-arrow.disabled {
+            opacity: 0;
+            pointer-events: none;
+        }
 
         /* --- Modal (확대 팝업) --- */
         .modal {
@@ -489,8 +493,11 @@
 
         <h2 class="section-title eng-font">GALLERY</h2>
 
-        <div class="gallery-grid-container" id="gallery-grid-container"></div>
-        <button class="gallery-more-btn" id="gallery-more-btn" onclick="showMoreGalleryItems()">더보기</button>
+        <div class="gallery-grid-wrapper">
+            <button class="gallery-nav-arrow prev" id="gallery-prev-btn" onclick="showPrevGalleryPage()" aria-label="이전 사진">&#10094;</button>
+            <div class="gallery-grid-container" id="gallery-grid-container"></div>
+            <button class="gallery-nav-arrow next" id="gallery-next-btn" onclick="showNextGalleryPage()" aria-label="다음 사진">&#10095;</button>
+        </div>
     </div>
 
     <!-- 확대 사진 팝업 모달창 -->
@@ -782,29 +789,47 @@
         else updateCarousel(true);
     });
 
-    // --- 갤러리 그리드: 9장씩 끊어서 보여주고 "더보기"로 다음 9장 추가 ---
+    // --- 갤러리 그리드: 9장씩 페이지로 나누고 좌우 화살표로 페이지 전환 ---
     const GALLERY_TOTAL = 17;
     const GALLERY_PAGE_SIZE = 9;
-    let galleryShownCount = 0;
+    const GALLERY_TOTAL_PAGES = Math.ceil(GALLERY_TOTAL / GALLERY_PAGE_SIZE);
+    let galleryCurrentPage = 0;
     const galleryGridContainer = document.getElementById('gallery-grid-container');
-    const galleryMoreBtn = document.getElementById('gallery-more-btn');
+    const galleryPrevBtn = document.getElementById('gallery-prev-btn');
+    const galleryNextBtn = document.getElementById('gallery-next-btn');
 
-    function showMoreGalleryItems() {
-        const nextCount = Math.min(galleryShownCount + GALLERY_PAGE_SIZE, GALLERY_TOTAL);
-        for (let i = galleryShownCount; i < nextCount; i++) {
+    function renderGalleryPage(page) {
+        galleryGridContainer.innerHTML = '';
+        const startIdx = page * GALLERY_PAGE_SIZE;
+        const endIdx = Math.min(startIdx + GALLERY_PAGE_SIZE, GALLERY_TOTAL);
+
+        for (let i = startIdx; i < endIdx; i++) {
             const img = document.createElement('img');
             img.src = `gallery_${i + 1}.jpg`;
             img.className = 'gallery-item';
             img.addEventListener('click', () => openModal(i));
             galleryGridContainer.appendChild(img);
         }
-        galleryShownCount = nextCount;
 
-        if (galleryShownCount >= GALLERY_TOTAL) {
-            galleryMoreBtn.style.display = 'none';
+        galleryPrevBtn.classList.toggle('disabled', page === 0);
+        galleryNextBtn.classList.toggle('disabled', page >= GALLERY_TOTAL_PAGES - 1);
+    }
+
+    function showNextGalleryPage() {
+        if (galleryCurrentPage < GALLERY_TOTAL_PAGES - 1) {
+            galleryCurrentPage++;
+            renderGalleryPage(galleryCurrentPage);
         }
     }
-    showMoreGalleryItems(); // 최초 9장 표시
+
+    function showPrevGalleryPage() {
+        if (galleryCurrentPage > 0) {
+            galleryCurrentPage--;
+            renderGalleryPage(galleryCurrentPage);
+        }
+    }
+
+    renderGalleryPage(0); // 최초 첫 페이지(1~9번) 표시
 
     // --- 갤러리 모달 & 슬라이드 ---
     const totalImages = 17;
