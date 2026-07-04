@@ -138,11 +138,22 @@
         .cover-overlay .title { font-family: 'Italiana', serif; font-size: 2.7rem; font-style: normal; font-weight: 400; letter-spacing: 1px; margin-bottom: 15px; line-height: 1.2; }
         .cover-overlay .date-venue { font-size: 0.9rem; letter-spacing: 1px; opacity: 0.8; line-height: 1.6; }
 
+        .cover-gallery-label {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            color: rgba(255,255,255,0.6);
+            padding-bottom: 14px;
+        }
+
         /* --- Section 2: Greeting & Info --- */
         .section-greeting { background-color: var(--bg-light); padding: 80px 20px; text-align: center; }
         .greeting-small-photo { width: 120px; height: 120px; object-fit: cover; margin: 0 auto 30px; border-radius: 4px; }
         .greeting-title { font-size: 0.85rem; letter-spacing: 3px; margin-bottom: 40px; color: var(--text-muted); }
-        .greeting-text { font-size: 0.95rem; line-height: 2.2; margin-bottom: 50px; color: #444; }
+        .greeting-text { font-size: 0.95rem; line-height: 1.55; margin-bottom: 50px; color: #444; max-width: 270px; margin-left: auto; margin-right: auto; }
         
         /* 5행시 앞글자 강조 스타일 */
         .highlight-name { font-weight: 600; color: var(--point-color); font-size: 1.1em; }
@@ -185,7 +196,7 @@
         .calendar-date-text { font-size: 0.9rem; letter-spacing: 2px; color: var(--text-dark); }
 
         /* --- Section 4: Gallery --- */
-        .section-gallery { background-color: #ffffff; padding: 80px 20px; text-align: center; }
+        .section-gallery { background-color: #ffffff; padding: 0 0 80px 0; text-align: center; }
         .section-title { font-size: 1.2rem; letter-spacing: 3px; margin-bottom: 40px; text-align: center; color: var(--point-color); }
         
         /* --- Gallery Swipe Slider (그리드 위 메인 슬라이드) --- */
@@ -216,6 +227,7 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 5px;
+            padding: 0 20px;
         }
         .gallery-item {
             width: 100%;
@@ -370,6 +382,7 @@
                 DMC TOWER WEDDING
             </p>
         </div>
+        <div class="cover-gallery-label eng-font">GALLERY</div>
     </div>
 
     <!-- Section 2: 인사말 및 정보 (reveal 클래스 추가) -->
@@ -378,11 +391,12 @@
         <img src="1_2.jpg" alt="웨딩 사진" class="greeting-small-photo">
         
         <p class="greeting-text">
-            <span class="highlight-name">김</span>겸과 황주애, 저희 두 사람이<br>
-            <span class="highlight-name">겸</span>손하고 다정한 마음으로 서로를 아끼며 살겠습니다.<br>
-            <span class="highlight-name">황</span>홀하고 가슴 벅찬 이 새로운 시작의 순간,<br>
-            <span class="highlight-name">주</span>인공이 되어 첫걸음을 내딛는 이 뜻깊은 날에<br>
-            <span class="highlight-name">애</span>정 어린 마음으로 참석하시어 축복해 주시면 감사하겠습니다.
+            서로에게 가장 편안한 사람이 된 두 사람이<br>
+            평생을 함께하기로 약속했습니다.<br><br>
+            앞으로의 날들을 함께 걸어가며<br>
+            웃음이 가득한 가정을 이루겠습니다.<br><br>
+            가장 행복하고 아름다운 순간<br>
+            소중한 분들을 초대합니다.
         </p>
 
         <div class="greeting-parents">
@@ -432,12 +446,13 @@
 
     <!-- Section 4: 갤러리 (reveal 클래스 추가) -->
     <div class="section-gallery reveal">
-        <h2 class="section-title eng-font">GALLERY</h2>
 
         <!-- 스와이프 슬라이드 (그리드 위에 추가) -->
         <div class="gallery-swipe-wrapper" id="gallery-swipe-wrapper">
             <div class="gallery-swipe-track" id="gallery-swipe-track"></div>
         </div>
+
+        <h2 class="section-title eng-font">GALLERY</h2>
 
         <div class="gallery-grid-container">
             <img src="gallery_1.jpg" class="gallery-item" onclick="openModal(0)">
