@@ -214,11 +214,12 @@
             /* 가운데 사진이 딱 중앙에 오도록 초기 offset은 JS에서 제어 */
         }
         .gallery-swipe-track img {
-            /* 가운데 사진: 전체 너비의 72%, 양옆 사진: 살짝 보임 */
-            width: 72%;
+            /* 가운데 사진: 전체 너비의 58%로 축소, 양옆 사진: 살짝 보임 */
+            width: 58%;
             flex-shrink: 0;
             aspect-ratio: 3 / 4;
-            object-fit: cover;
+            object-fit: contain;
+            background-color: #f5f4f2;
             cursor: pointer;
             border-radius: 6px;
             -webkit-user-select: none;
@@ -239,18 +240,39 @@
         .gallery-grid-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
+            gap: 4px;
             padding: 0 20px;
         }
         .gallery-item {
             width: 100%;
-            aspect-ratio: 1 / 1;
+            aspect-ratio: 3 / 4;
             object-fit: cover;
             border-radius: 2px;
             cursor: pointer;
             transition: opacity 0.2s;
+            display: block;
         }
         .gallery-item:active { opacity: 0.7; }
+        .gallery-item.hidden { display: none; }
+
+        /* 더보기 버튼 */
+        .gallery-more-btn {
+            display: block;
+            margin: 20px 20px 0;
+            padding: 14px;
+            background: none;
+            border: 1px solid #d4cec3;
+            border-radius: 6px;
+            font-family: 'Gowun Dodum', 'Noto Sans KR', sans-serif;
+            font-size: 0.9rem;
+            color: #888;
+            letter-spacing: 2px;
+            cursor: pointer;
+            width: calc(100% - 40px);
+            text-align: center;
+            transition: background 0.2s;
+        }
+        .gallery-more-btn:active { background: #f5f3f0; }
 
         /* --- Modal (확대 팝업) --- */
         .modal {
@@ -467,25 +489,8 @@
 
         <h2 class="section-title eng-font">GALLERY</h2>
 
-        <div class="gallery-grid-container">
-            <img src="gallery_1.jpg" class="gallery-item" onclick="openModal(0)">
-            <img src="gallery_2.jpg" class="gallery-item" onclick="openModal(1)">
-            <img src="gallery_3.jpg" class="gallery-item" onclick="openModal(2)">
-            <img src="gallery_4.jpg" class="gallery-item" onclick="openModal(3)">
-            <img src="gallery_5.jpg" class="gallery-item" onclick="openModal(4)">
-            <img src="gallery_6.jpg" class="gallery-item" onclick="openModal(5)">
-            <img src="gallery_7.jpg" class="gallery-item" onclick="openModal(6)">
-            <img src="gallery_8.jpg" class="gallery-item" onclick="openModal(7)">
-            <img src="gallery_9.jpg" class="gallery-item" onclick="openModal(8)">
-            <img src="gallery_10.jpg" class="gallery-item" onclick="openModal(9)">
-            <img src="gallery_11.jpg" class="gallery-item" onclick="openModal(10)">
-            <img src="gallery_12.jpg" class="gallery-item" onclick="openModal(11)">
-            <img src="gallery_13.jpg" class="gallery-item" onclick="openModal(12)">
-            <img src="gallery_14.jpg" class="gallery-item" onclick="openModal(13)">
-            <img src="gallery_15.jpg" class="gallery-item" onclick="openModal(14)">
-            <img src="gallery_16.jpg" class="gallery-item" onclick="openModal(15)">
-            <img src="gallery_17.jpg" class="gallery-item" onclick="openModal(16)">
-        </div>
+        <div class="gallery-grid-container" id="gallery-grid-container"></div>
+        <button class="gallery-more-btn" id="gallery-more-btn" onclick="showMoreGalleryItems()">더보기</button>
     </div>
 
     <!-- 확대 사진 팝업 모달창 -->
@@ -776,6 +781,30 @@
         else if (diffX > threshold && swipeIndex > 0) moveSwipe(-1);
         else updateCarousel(true);
     });
+
+    // --- 갤러리 그리드: 9장씩 끊어서 보여주고 "더보기"로 다음 9장 추가 ---
+    const GALLERY_TOTAL = 17;
+    const GALLERY_PAGE_SIZE = 9;
+    let galleryShownCount = 0;
+    const galleryGridContainer = document.getElementById('gallery-grid-container');
+    const galleryMoreBtn = document.getElementById('gallery-more-btn');
+
+    function showMoreGalleryItems() {
+        const nextCount = Math.min(galleryShownCount + GALLERY_PAGE_SIZE, GALLERY_TOTAL);
+        for (let i = galleryShownCount; i < nextCount; i++) {
+            const img = document.createElement('img');
+            img.src = `gallery_${i + 1}.jpg`;
+            img.className = 'gallery-item';
+            img.addEventListener('click', () => openModal(i));
+            galleryGridContainer.appendChild(img);
+        }
+        galleryShownCount = nextCount;
+
+        if (galleryShownCount >= GALLERY_TOTAL) {
+            galleryMoreBtn.style.display = 'none';
+        }
+    }
+    showMoreGalleryItems(); // 최초 9장 표시
 
     // --- 갤러리 모달 & 슬라이드 ---
     const totalImages = 17;
