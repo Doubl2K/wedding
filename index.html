@@ -503,7 +503,7 @@
     <!-- 확대 사진 팝업 모달창 -->
     <div id="gallery-modal" class="modal">
         <div class="modal-header eng-font">
-            <span id="modal-counter">1 / 17</span>
+            <span id="modal-counter">1 / 22</span>
             <span id="modal-close" onclick="closeModal()" style="cursor:pointer; font-weight: bold;">✕</span>
         </div>
         <div class="slider-wrapper" id="slider-wrapper">
@@ -643,7 +643,7 @@
     const swipeTrack = document.getElementById('gallery-swipe-track');
     const swipeWrapper = document.getElementById('gallery-swipe-wrapper');
     let swipeIndex = 0;
-    const swipeTotal = 17;
+    const swipeTotal = 22;
     let isSwipeAnimating = false;
 
     // 사진 삽입
@@ -790,7 +790,7 @@
     });
 
     // --- 갤러리 그리드: 9장씩 페이지로 나누고 좌우 화살표로 페이지 전환 ---
-    const GALLERY_TOTAL = 17;
+    const GALLERY_TOTAL = 22;
     const GALLERY_PAGE_SIZE = 9;
     const GALLERY_TOTAL_PAGES = Math.ceil(GALLERY_TOTAL / GALLERY_PAGE_SIZE);
     let galleryCurrentPage = 0;
@@ -832,7 +832,7 @@
     renderGalleryPage(0); // 최초 첫 페이지(1~9번) 표시
 
     // --- 갤러리 모달 & 슬라이드 ---
-    const totalImages = 17;
+    const totalImages = 22;
     const modalImageList = [];
     for(let i=1; i<=totalImages; i++) {
         modalImageList.push(`gallery_${i}.jpg`);
