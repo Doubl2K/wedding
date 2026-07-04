@@ -199,28 +199,41 @@
         .section-gallery { background-color: #ffffff; padding: 0 0 80px 0; text-align: center; }
         .section-title { font-size: 1.2rem; letter-spacing: 3px; margin-bottom: 40px; text-align: center; color: var(--point-color); }
         
-        /* --- Gallery Swipe Slider (그리드 위 메인 슬라이드) --- */
+        /* --- Gallery Carousel Slider --- */
         .gallery-swipe-wrapper {
             width: 100%;
             overflow: hidden;
             margin-bottom: 30px;
-            border-radius: 4px;
             background-color: #ffffff;
+            padding: 20px 0;
         }
         .gallery-swipe-track {
             display: flex;
             align-items: center;
-            touch-action: none; /* JS에서 직접 가로/세로 의도를 판별해 처리 */
+            touch-action: none;
+            /* 가운데 사진이 딱 중앙에 오도록 초기 offset은 JS에서 제어 */
         }
         .gallery-swipe-track img {
-            width: 100%;
+            /* 가운데 사진: 전체 너비의 72%, 양옆 사진: 살짝 보임 */
+            width: 72%;
             flex-shrink: 0;
-            max-height: 75vh;
-            object-fit: contain;
+            aspect-ratio: 3 / 4;
+            object-fit: cover;
             cursor: pointer;
+            border-radius: 6px;
             -webkit-user-select: none;
             -webkit-touch-callout: none;
             user-select: none;
+            /* 가운데가 아닌 사진은 살짝 작고 흐리게 */
+            transform: scale(0.88);
+            opacity: 0.5;
+            transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1),
+                        opacity 0.35s ease;
+            margin: 0 4px;
+        }
+        .gallery-swipe-track img.active {
+            transform: scale(1);
+            opacity: 1;
         }
 
         .gallery-grid-container {
@@ -614,13 +627,14 @@
         document.addEventListener(evt, handleFirstInteraction, { capture: true, passive: true });
     });
 
-    // --- 갤러리 상단 스와이프 슬라이드 (드래그/스와이프 전용, 한 장씩 강제 이동, 인디케이터 없음) ---
+    // --- 갤러리 캐러셀 슬라이드 (가운데 크게, 양옆 살짝 보임) ---
     const swipeTrack = document.getElementById('gallery-swipe-track');
     const swipeWrapper = document.getElementById('gallery-swipe-wrapper');
     let swipeIndex = 0;
     const swipeTotal = 17;
     let isSwipeAnimating = false;
 
+    // 사진 삽입
     for (let i = 1; i <= swipeTotal; i++) {
         const img = document.createElement('img');
         img.src = `gallery_${i}.jpg`;
@@ -630,32 +644,60 @@
         swipeTrack.appendChild(img);
     }
 
-    function updateSwipePosition(withTransition = true) {
+    const imgs = swipeTrack.querySelectorAll('img');
+
+    function getItemWidth() {
+        // 사진 1장의 실제 px 너비 (margin 포함)
+        if (imgs[0]) {
+            const style = window.getComputedStyle(imgs[0]);
+            return imgs[0].offsetWidth + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
+        }
+        return swipeWrapper.offsetWidth * 0.72 + 8;
+    }
+
+    function getCenterOffset() {
+        // 가운데 사진이 wrapper 중앙에 오도록 초기 offset 계산
+        return (swipeWrapper.offsetWidth - imgs[0].offsetWidth) / 2;
+    }
+
+    function updateCarousel(withTransition = true) {
         if (withTransition) {
             isSwipeAnimating = true;
             swipeTrack.style.transition = 'transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1)';
-            window.setTimeout(() => { isSwipeAnimating = false; }, 360);
+            setTimeout(() => { isSwipeAnimating = false; }, 360);
         } else {
             swipeTrack.style.transition = 'none';
         }
-        swipeTrack.style.transform = `translateX(-${swipeIndex * 100}%)`;
+
+        const itemWidth = getItemWidth();
+        const centerOffset = getCenterOffset();
+        const tx = centerOffset - swipeIndex * itemWidth;
+        swipeTrack.style.transform = `translateX(${tx}px)`;
+
+        // active 클래스 토글
+        imgs.forEach((img, i) => {
+            img.classList.toggle('active', i === swipeIndex);
+        });
     }
 
-    // 한 번의 스와이프 제스처당 정확히 한 장만 이동 (강제 스냅)
     function moveSwipe(step) {
         if (isSwipeAnimating) return;
         swipeIndex += step;
         if (swipeIndex < 0) swipeIndex = 0;
         if (swipeIndex > swipeTotal - 1) swipeIndex = swipeTotal - 1;
-        updateSwipePosition(true);
+        updateCarousel(true);
     }
 
-    // 터치(모바일) 드래그
+    // 레이아웃 완료 후 초기화
+    window.addEventListener('load', () => updateCarousel(false));
+    setTimeout(() => updateCarousel(false), 100);
+
+    // 터치 드래그
     let swipeTouchStartX = 0;
     let swipeTouchCurrentX = 0;
     let swipeTouchStartY = 0;
     let isSwipeTouching = false;
-    let swipeGestureAxis = null; // 'x' = 가로 스와이프 확정, 'y' = 세로 스크롤에 양보, null = 아직 미정
+    let swipeGestureAxis = null;
 
     swipeWrapper.addEventListener('touchstart', (e) => {
         if (isSwipeAnimating) return;
@@ -670,53 +712,39 @@
     swipeWrapper.addEventListener('touchmove', (e) => {
         if (!isSwipeTouching) return;
         swipeTouchCurrentX = e.touches[0].clientX;
-        const currentY = e.touches[0].clientY;
         const diffX = swipeTouchCurrentX - swipeTouchStartX;
-        const diffY = currentY - swipeTouchStartY;
+        const diffY = e.touches[0].clientY - swipeTouchStartY;
 
-        // 제스처 초반에 가로/세로 중 어느 쪽이 더 우세한지 한 번만 판정
         if (swipeGestureAxis === null && (Math.abs(diffX) > 6 || Math.abs(diffY) > 6)) {
             swipeGestureAxis = Math.abs(diffX) > Math.abs(diffY) ? 'x' : 'y';
         }
+        if (swipeGestureAxis === 'y') return;
 
-        if (swipeGestureAxis === 'y') {
-            // 세로 스크롤 의도가 명확 → 갤러리 스와이프는 더 이상 반응하지 않고 페이지 스크롤에 양보
-            return;
-        }
-
-        // 가로 스와이프로 확정된 경우에만 페이지 스크롤을 막고 사진을 따라오게 함
         e.preventDefault();
 
         let deltaPx = diffX;
-        // 양 끝에서는 살짝만 따라오도록 저항감 부여
         if ((swipeIndex === 0 && deltaPx > 0) || (swipeIndex === swipeTotal - 1 && deltaPx < 0)) {
             deltaPx *= 0.35;
         }
-        const deltaPercent = (deltaPx / swipeWrapper.offsetWidth) * 100;
-        swipeTrack.style.transform = `translateX(-${swipeIndex * 100 - deltaPercent}%)`;
+        const itemWidth = getItemWidth();
+        const centerOffset = getCenterOffset();
+        const tx = centerOffset - swipeIndex * itemWidth + deltaPx;
+        swipeTrack.style.transform = `translateX(${tx}px)`;
     }, { passive: false });
 
     swipeWrapper.addEventListener('touchend', () => {
         if (!isSwipeTouching) return;
         isSwipeTouching = false;
-        if (swipeGestureAxis === 'y') {
-            // 세로 스크롤로 처리된 제스처였으면 사진 위치 그대로 복귀(움직인 적 없음)
-            swipeGestureAxis = null;
-            return;
-        }
-        const deltaPx = swipeTouchCurrentX - swipeTouchStartX;
+        if (swipeGestureAxis === 'y') { swipeGestureAxis = null; return; }
+        const diffX = swipeTouchCurrentX - swipeTouchStartX;
         const threshold = swipeWrapper.offsetWidth * 0.12;
-        if (deltaPx < -threshold && swipeIndex < swipeTotal - 1) {
-            moveSwipe(1);
-        } else if (deltaPx > threshold && swipeIndex > 0) {
-            moveSwipe(-1);
-        } else {
-            updateSwipePosition(true);
-        }
+        if (diffX < -threshold && swipeIndex < swipeTotal - 1) moveSwipe(1);
+        else if (diffX > threshold && swipeIndex > 0) moveSwipe(-1);
+        else updateCarousel(true);
         swipeGestureAxis = null;
     });
 
-    // 마우스 드래그 (PC에서 테스트할 때도 동작)
+    // 마우스 드래그 (PC)
     let swipeMouseStartX = 0;
     let swipeMouseCurrentX = 0;
     let isSwipeMouseDown = false;
@@ -733,25 +761,20 @@
         if (!isSwipeMouseDown) return;
         swipeMouseCurrentX = e.clientX;
         let deltaPx = swipeMouseCurrentX - swipeMouseStartX;
-        if ((swipeIndex === 0 && deltaPx > 0) || (swipeIndex === swipeTotal - 1 && deltaPx < 0)) {
-            deltaPx *= 0.35;
-        }
-        const deltaPercent = (deltaPx / swipeWrapper.offsetWidth) * 100;
-        swipeTrack.style.transform = `translateX(-${swipeIndex * 100 - deltaPercent}%)`;
+        if ((swipeIndex === 0 && deltaPx > 0) || (swipeIndex === swipeTotal - 1 && deltaPx < 0)) deltaPx *= 0.35;
+        const itemWidth = getItemWidth();
+        const centerOffset = getCenterOffset();
+        swipeTrack.style.transform = `translateX(${centerOffset - swipeIndex * itemWidth + deltaPx}px)`;
     });
 
     window.addEventListener('mouseup', () => {
         if (!isSwipeMouseDown) return;
         isSwipeMouseDown = false;
-        const deltaPx = swipeMouseCurrentX - swipeMouseStartX;
+        const diffX = swipeMouseCurrentX - swipeMouseStartX;
         const threshold = swipeWrapper.offsetWidth * 0.12;
-        if (deltaPx < -threshold && swipeIndex < swipeTotal - 1) {
-            moveSwipe(1);
-        } else if (deltaPx > threshold && swipeIndex > 0) {
-            moveSwipe(-1);
-        } else {
-            updateSwipePosition(true);
-        }
+        if (diffX < -threshold && swipeIndex < swipeTotal - 1) moveSwipe(1);
+        else if (diffX > threshold && swipeIndex > 0) moveSwipe(-1);
+        else updateCarousel(true);
     });
 
     // --- 갤러리 모달 & 슬라이드 ---
