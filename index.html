@@ -797,10 +797,14 @@
         else updateCarousel(true);
     });
 
-    // --- 갤러리 그리드: 9장씩 페이지로 나누고 좌우 화살표로 페이지 전환 ---
-    const GALLERY_TOTAL = 22;
-    const GALLERY_PAGE_SIZE = 9;
-    const GALLERY_TOTAL_PAGES = Math.ceil(GALLERY_TOTAL / GALLERY_PAGE_SIZE);
+    // --- 갤러리 그리드: 커스텀 순서로 페이지 구성, 좌우 화살표로 전환 ---
+    // 1페이지: gallery_17~22 (6장), 2페이지: gallery_01~08 (8장), 3페이지: gallery_09~16 (8장)
+    const GALLERY_PAGES = [
+        [17, 18, 19, 20, 21, 22],
+        [1,  2,  3,  4,  5,  6,  7,  8],
+        [9,  10, 11, 12, 13, 14, 15, 16]
+    ];
+    const GALLERY_TOTAL_PAGES = GALLERY_PAGES.length;
     let galleryCurrentPage = 0;
     const galleryGridContainer = document.getElementById('gallery-grid-container');
     const galleryPrevBtn = document.getElementById('gallery-prev-btn');
@@ -808,16 +812,15 @@
 
     function renderGalleryPage(page) {
         galleryGridContainer.innerHTML = '';
-        const startIdx = page * GALLERY_PAGE_SIZE;
-        const endIdx = Math.min(startIdx + GALLERY_PAGE_SIZE, GALLERY_TOTAL);
+        const pageItems = GALLERY_PAGES[page];
 
-        for (let i = startIdx; i < endIdx; i++) {
+        pageItems.forEach(num => {
             const img = document.createElement('img');
-            img.src = `gallery_${String(i + 1).padStart(2, '0')}.jpg`;
+            img.src = `gallery_${String(num).padStart(2, '0')}.jpg`;
             img.className = 'gallery-item';
-            img.addEventListener('click', () => openModal(i));
+            img.addEventListener('click', () => openModal(num - 1));
             galleryGridContainer.appendChild(img);
-        }
+        });
 
         galleryPrevBtn.classList.toggle('disabled', page === 0);
         galleryNextBtn.classList.toggle('disabled', page >= GALLERY_TOTAL_PAGES - 1);
@@ -837,7 +840,7 @@
         }
     }
 
-    renderGalleryPage(0); // 최초 첫 페이지(1~9번) 표시
+    renderGalleryPage(0); // 최초 1페이지 (gallery_17~22) 표시
 
     // --- 갤러리 모달 & 슬라이드 ---
     const totalImages = 22;
