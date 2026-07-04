@@ -6,8 +6,8 @@
     <title>김겸 & 황주애 모바일 청첩장</title>
     
     <!-- 카카오톡 공유 미리보기(Open Graph) 설정 -->
-    <meta property="og:title" content="겸 & 주애 :¨ ·.· ¨: · . ୨୧ :¨ ·.· ¨: · .">
-    <meta property="og:description" content="2026.09.19. 18시 상암 DMC타워웨딩 펠리체홀">
+    <meta property="og:title" content="김겸 & 황주애 모바일 청첩장">
+    <meta property="og:description" content="겸 & 주애 :¨ ·.· ¨: · . ୨୧ :¨ ·.· ¨: · . 2026.09.19. 6시 상암 DMC타워웨딩 펠리체홀">
     <meta property="og:image" content="1_2.jpg"> <!-- 공유 시 보여질 대표 사진 파일명 -->
 
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Italiana&family=Noto+Sans+KR:wght@300;400;500&family=Gowun+Dodum&display=swap" rel="stylesheet">
@@ -81,24 +81,28 @@
         /* --- BGM Button --- */
         #bgm-btn {
             position: fixed;
-            top: 20px;
+            top: 18px;
             right: 50%;
             transform: translateX(205px);
-            width: 40px;
-            height: 40px;
-            background-color: rgba(255, 255, 255, 0.8);
+            width: 34px;
+            height: 34px;
+            background-color: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            font-size: 1.2rem;
-            transition: all 0.3s;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.12);
+            transition: background-color 0.2s, opacity 0.2s;
+            border: 1px solid rgba(255,255,255,0.6);
         }
+        #bgm-btn:active { opacity: 0.7; }
+        #bgm-btn svg { width: 14px; height: 14px; display: block; }
         @media (max-width: 450px) {
-            #bgm-btn { right: 20px; transform: none; }
+            #bgm-btn { right: 16px; transform: none; }
         }
         /* 아이콘 회전 애니메이션 제거됨 */
 
@@ -344,7 +348,17 @@
     <audio id="bgm-audio" loop>
         <source src="bgm.mp3" type="audio/mpeg">
     </audio>
-    <div id="bgm-btn" onclick="toggleBGM()">🎵</div>
+    <div id="bgm-btn" onclick="toggleBGM()">
+        <!-- 재생 중 아이콘: 음파/일시정지 -->
+        <svg id="bgm-icon-pause" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="rgba(80,70,60,0.85)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+            <rect x="6" y="5" width="4" height="14" rx="1"/>
+            <rect x="14" y="5" width="4" height="14" rx="1"/>
+        </svg>
+        <!-- 정지 중 아이콘: 재생 삼각형 -->
+        <svg id="bgm-icon-play" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="rgba(80,70,60,0.85)" stroke="none">
+            <polygon points="6,4 20,12 6,20"/>
+        </svg>
+    </div>
 
     <!-- Section 1: 감성 메인 커버 -->
     <div class="section-cover">
@@ -539,30 +553,35 @@
     // --- BGM 컨트롤 ---
     const bgmAudio = document.getElementById("bgm-audio");
     const bgmBtn = document.getElementById("bgm-btn");
+    const iconPlay = document.getElementById("bgm-icon-play");
+    const iconPause = document.getElementById("bgm-icon-pause");
     let isPlaying = false;
     let bgmUnlocked = false;
+
+    function setBgmIcon(playing) {
+        iconPlay.style.display = playing ? 'none' : 'block';
+        iconPause.style.display = playing ? 'block' : 'none';
+    }
 
     function startBGM() {
         if (isPlaying) return;
         bgmAudio.play().then(() => {
             isPlaying = true;
             bgmUnlocked = true;
-            bgmBtn.innerText = "⏸️";
-        }).catch(() => {
-            // 자동재생이 브라우저 정책으로 막힌 경우, 사용자의 첫 제스처에서 재시도됨
-        });
+            setBgmIcon(true);
+        }).catch(() => {});
     }
 
     function toggleBGM() {
         if (isPlaying) {
             bgmAudio.pause();
-            bgmBtn.innerText = "🎵";
             isPlaying = false;
+            setBgmIcon(false);
         } else {
             bgmAudio.play().then(() => {
                 bgmUnlocked = true;
+                setBgmIcon(true);
             }).catch(e => alert("음원을 찾을 수 없거나 브라우저 정책에 의해 차단되었습니다."));
-            bgmBtn.innerText = "⏸️";
             isPlaying = true;
         }
     }
@@ -572,8 +591,6 @@
     window.addEventListener('load', startBGM);
     document.addEventListener('DOMContentLoaded', startBGM);
 
-    // 자동재생이 막힌 브라우저 대응: 사용자의 첫 제스처(터치/클릭/스크롤/휠) 즉시 재생 시도.
-    // capture 단계에서 가장 먼저 감지해서, 다른 버튼 클릭이라도 음악은 항상 풀리게 함.
     function handleFirstInteraction() {
         if (bgmUnlocked) return;
         startBGM();
