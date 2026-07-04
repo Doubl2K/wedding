@@ -195,6 +195,14 @@
         }
         .calendar-date-text { font-size: 0.9rem; letter-spacing: 2px; color: var(--text-dark); }
 
+        .gallery-swipe-hint {
+            font-size: 0.72rem;
+            color: #bbb;
+            letter-spacing: 0.5px;
+            margin: -10px 0 20px;
+            text-align: center;
+        }
+
         /* --- Section 4: Gallery --- */
         .section-gallery { background-color: #ffffff; padding: 0 0 80px 0; text-align: center; }
         .section-title { font-size: 1.2rem; letter-spacing: 3px; margin-bottom: 40px; text-align: center; color: var(--point-color); }
@@ -490,6 +498,7 @@
         <div class="gallery-swipe-wrapper" id="gallery-swipe-wrapper">
             <div class="gallery-swipe-track" id="gallery-swipe-track"></div>
         </div>
+        <p class="gallery-swipe-hint">옆으로 넘기시면 더 많은 사진을 보실 수 있습니다</p>
 
         <h2 class="section-title eng-font">GALLERY</h2>
 
@@ -649,8 +658,7 @@
     // 사진 삽입
     for (let i = 1; i <= swipeTotal; i++) {
         const img = document.createElement('img');
-        img.src = `gallery_${i}.jpg`;
-        img.addEventListener('click', () => {
+        img.src = `gallery_${String(i).padStart(2, '0')}.jpg`;        img.addEventListener('click', () => {
             if (!isSwipeAnimating) openModal(i - 1);
         });
         swipeTrack.appendChild(img);
@@ -805,7 +813,7 @@
 
         for (let i = startIdx; i < endIdx; i++) {
             const img = document.createElement('img');
-            img.src = `gallery_${i + 1}.jpg`;
+            img.src = `gallery_${String(i + 1).padStart(2, '0')}.jpg`;
             img.className = 'gallery-item';
             img.addEventListener('click', () => openModal(i));
             galleryGridContainer.appendChild(img);
@@ -835,7 +843,7 @@
     const totalImages = 22;
     const modalImageList = [];
     for(let i=1; i<=totalImages; i++) {
-        modalImageList.push(`gallery_${i}.jpg`);
+        modalImageList.push(`gallery_${String(i).padStart(2, '0')}.jpg`);
     }
 
     let currentIndex = 0;
