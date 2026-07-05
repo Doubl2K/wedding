@@ -73,6 +73,9 @@
             transform: translateY(40px);
             transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
         }
+        .reveal.from-top {
+            transform: translateY(-40px);
+        }
         .reveal.active {
             opacity: 1;
             transform: translateY(0);
@@ -137,17 +140,6 @@
         .cover-overlay .subtitle { font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 5px; opacity: 0.9; }
         .cover-overlay .title { font-family: 'Tenor Sans', serif; font-size: 2rem; font-style: normal; font-weight: 400; letter-spacing: 2px; margin-bottom: 15px; line-height: 1.2; white-space: nowrap; }
         .cover-overlay .date-venue { font-size: 0.9rem; letter-spacing: 1px; opacity: 0.8; line-height: 1.6; }
-
-        .cover-gallery-label {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.7rem;
-            letter-spacing: 4px;
-            color: rgba(255,255,255,0.6);
-            padding-bottom: 14px;
-        }
 
         /* --- Section 2: Greeting & Info --- */
         .section-greeting { background-color: var(--bg-light); padding: 80px 20px; text-align: center; }
@@ -429,7 +421,6 @@
                 DMC TOWER WEDDING
             </p>
         </div>
-        <div class="cover-gallery-label eng-font">GALLERY</div>
     </div>
 
     <!-- Section 2: 인사말 및 정보 (reveal 클래스 추가) -->
@@ -586,15 +577,26 @@
 <script>
     // --- 스크롤 부드럽게 나타나는 효과 (Intersection Observer) ---
     const revealElements = document.querySelectorAll('.reveal');
-    const revealObserver = new IntersectionObserver((entries, observer) => {
+    const revealObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
+                // 화면에 들어올 때: active 추가, from-top 제거
+                entry.target.classList.remove('from-top');
                 entry.target.classList.add('active');
-                observer.unobserve(entry.target); // 한 번 나타나면 유지
+            } else {
+                // 화면에서 벗어날 때: 어느 방향으로 사라졌는지 판별
+                entry.target.classList.remove('active');
+                if (entry.boundingClientRect.top < 0) {
+                    // 위로 스크롤해서 사라진 경우 → 다시 들어올 때 위에서 내려오게
+                    entry.target.classList.add('from-top');
+                } else {
+                    // 아래로 스크롤해서 사라진 경우 → 다시 들어올 때 아래에서 올라오게
+                    entry.target.classList.remove('from-top');
+                }
             }
         });
     }, {
-        threshold: 0.15 // 화면에 15% 정도 보일 때 애니메이션 시작
+        threshold: 0.1
     });
     revealElements.forEach(el => revealObserver.observe(el));
 
