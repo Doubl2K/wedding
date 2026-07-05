@@ -659,14 +659,16 @@
     const swipeTotal = 22;
     let isSwipeAnimating = false;
 
-    // 사진 삽입
-    for (let i = 1; i <= swipeTotal; i++) {
+    // 사진 삽입 - MODAL_ORDER 순서와 동일하게 (17~22, 01~09, 10~16)
+    const CAROUSEL_ORDER = [17,18,19,20,21,22, 1,2,3,4,5,6,7,8,9, 10,11,12,13,14,15,16];
+    CAROUSEL_ORDER.forEach((num, i) => {
         const img = document.createElement('img');
-        img.src = `gallery_${String(i).padStart(2, '0')}.jpg`;        img.addEventListener('click', () => {
-            if (!isSwipeAnimating) openModal(i - 1);
+        img.src = `gallery_${String(num).padStart(2, '0')}.jpg`;
+        img.addEventListener('click', () => {
+            if (!isSwipeAnimating) openModal(i);
         });
         swipeTrack.appendChild(img);
-    }
+    });
 
     const imgs = swipeTrack.querySelectorAll('img');
 
@@ -827,7 +829,9 @@
             } else {
                 img.src = `gallery_${String(num).padStart(2, '0')}.jpg`;
                 img.className = 'gallery-item';
-                img.addEventListener('click', () => openModal(num - 1));
+                // MODAL_ORDER 기준 인덱스로 열어야 모달에서 순서가 맞음
+                const modalIdx = MODAL_ORDER.indexOf(num);
+                img.addEventListener('click', () => openModal(modalIdx));
             }
             galleryGridContainer.appendChild(img);
         });
@@ -853,11 +857,10 @@
     renderGalleryPage(0); // 최초 1페이지 (gallery_17~22) 표시
 
     // --- 갤러리 모달 & 슬라이드 ---
-    const totalImages = 22;
-    const modalImageList = [];
-    for(let i=1; i<=totalImages; i++) {
-        modalImageList.push(`gallery_${String(i).padStart(2, '0')}.jpg`);
-    }
+    // 그리드 순서와 동일하게: 17~22, 01~09, 10~16
+    const MODAL_ORDER = [17,18,19,20,21,22, 1,2,3,4,5,6,7,8,9, 10,11,12,13,14,15,16];
+    const totalImages = MODAL_ORDER.length;
+    const modalImageList = MODAL_ORDER.map(n => `gallery_${String(n).padStart(2, '0')}.jpg`);
 
     let currentIndex = 0;
     const modal = document.getElementById('gallery-modal');
