@@ -852,7 +852,7 @@
 
     renderGalleryPage(0); // 최초 1페이지 (gallery_17~22) 표시
 
-    // --- 갤러리 모달 & 슬라이드 ---
+    // --- 갤러리 모달 & 슬라이드 (무한루프 방식) ---
     const totalImages = 22;
     const modalImageList = [];
     for(let i=1; i<=totalImages; i++) {
@@ -864,15 +864,36 @@
     const track = document.getElementById('slider-track');
     const counter = document.getElementById('modal-counter');
 
+    // 앞뒤에 클론 1장씩 추가 (무한루프 효과)
+    // 순서: [마지막 클론] [0] [1] ... [21] [첫번째 클론]
+    const cloneLast = document.createElement('img');
+    cloneLast.src = modalImageList[totalImages - 1];
+    track.appendChild(cloneLast);
+
     modalImageList.forEach(src => {
         const img = document.createElement('img');
         img.src = src;
         track.appendChild(img);
     });
 
+    const cloneFirst = document.createElement('img');
+    cloneFirst.src = modalImageList[0];
+    track.appendChild(cloneFirst);
+
+    // 실제 사진은 index 1부터 시작 (index 0은 마지막 클론)
+    function getTrackIndex(realIndex) {
+        return realIndex + 1; // 클론 때문에 +1 오프셋
+    }
+
+    function updateModal(withTransition = true) {
+        counter.innerText = `${currentIndex + 1} / ${totalImages}`;
+        track.style.transition = withTransition ? 'transform 0.3s ease-in-out' : 'none';
+        track.style.transform = `translateX(-${getTrackIndex(currentIndex) * 100}%)`;
+    }
+
     function openModal(index) {
         currentIndex = index;
-        updateModal();
+        updateModal(false);
         modal.style.display = 'flex';
     }
 
@@ -882,14 +903,34 @@
 
     function moveSlide(step) {
         currentIndex += step;
-        if (currentIndex < 0) currentIndex = totalImages - 1;
-        if (currentIndex >= totalImages) currentIndex = 0;
-        updateModal();
-    }
 
-    function updateModal() {
-        counter.innerText = `${currentIndex + 1} / ${totalImages}`;
-        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        if (currentIndex >= totalImages) {
+            // 마지막 다음 → 첫번째 클론으로 먼저 이동 후 실제 첫번째로 순간이동
+            currentIndex = totalImages; // 클론 위치
+            updateModal(true);
+            track.addEventListener('transitionend', function handler() {
+                track.removeEventListener('transitionend', handler);
+                currentIndex = 0;
+                updateModal(false);
+            });
+            counter.innerText = `1 / ${totalImages}`;
+            return;
+        }
+
+        if (currentIndex < 0) {
+            // 첫번째 이전 → 마지막 클론으로 먼저 이동 후 실제 마지막으로 순간이동
+            currentIndex = -1; // 클론 위치
+            updateModal(true);
+            track.addEventListener('transitionend', function handler() {
+                track.removeEventListener('transitionend', handler);
+                currentIndex = totalImages - 1;
+                updateModal(false);
+            });
+            counter.innerText = `${totalImages} / ${totalImages}`;
+            return;
+        }
+
+        updateModal(true);
     }
 
     let touchStartX = 0;
