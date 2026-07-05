@@ -260,6 +260,29 @@
         .gallery-item:active { opacity: 0.7; }
         .gallery-item.hidden { display: none; }
 
+        /* 갤러리 1페이지 콜라주 스타일 */
+        .gallery-collage {
+            position: relative;
+            width: 100%;
+            height: 520px;
+            margin: 0 auto;
+        }
+        .collage-item {
+            position: absolute;
+            background: white;
+            padding: 8px 8px 28px 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .collage-item:active { opacity: 0.85; }
+        .collage-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
         /* 갤러리 페이지 넘기기 좌우 화살표 */
         .gallery-nav-arrow {
             background: none;
@@ -815,22 +838,72 @@
     const galleryPrevBtn = document.getElementById('gallery-prev-btn');
     const galleryNextBtn = document.getElementById('gallery-next-btn');
 
+    function renderCollage(pageItems) {
+        // 그리드 wrapper의 화살표는 유지하되 컨테이너만 콜라주로
+        galleryGridContainer.innerHTML = '';
+        galleryGridContainer.style.display = 'block';
+        galleryGridContainer.style.position = 'relative';
+        galleryGridContainer.style.height = '520px';
+        galleryGridContainer.style.flex = '1';
+
+        // 각 사진의 위치/크기/각도 (6장 고정 레이아웃)
+        const layouts = [
+            { top:  '0px',   left: '2%',  width: '54%', height: '210px', rotate: -4  },
+            { top:  '10px',  left: '50%', width: '46%', height: '180px', rotate:  3  },
+            { top:  '195px', left: '5%',  width: '42%', height: '165px', rotate:  2  },
+            { top:  '180px', left: '44%', width: '52%', height: '200px', rotate: -3  },
+            { top:  '355px', left: '2%',  width: '50%', height: '160px', rotate: -2  },
+            { top:  '370px', left: '48%', width: '46%', height: '145px', rotate:  4  },
+        ];
+
+        pageItems.forEach((num, i) => {
+            if (num === 0) return;
+            const layout = layouts[i];
+            const card = document.createElement('div');
+            card.className = 'collage-item';
+            card.style.top = layout.top;
+            card.style.left = layout.left;
+            card.style.width = layout.width;
+            card.style.height = layout.height;
+            card.style.transform = `rotate(${layout.rotate}deg)`;
+            card.style.zIndex = i + 1;
+
+            const img = document.createElement('img');
+            img.src = `gallery_${String(num).padStart(2, '0')}.jpg`;
+            img.addEventListener('click', () => openModal(num - 1));
+
+            card.appendChild(img);
+            galleryGridContainer.appendChild(card);
+        });
+    }
+
     function renderGalleryPage(page) {
         galleryGridContainer.innerHTML = '';
-        const pageItems = GALLERY_PAGES[page];
 
-        pageItems.forEach(num => {
-            const img = document.createElement('img');
-            if (num === 0) {
-                img.className = 'gallery-item gallery-item-empty';
-                img.style.visibility = 'hidden';
-            } else {
-                img.src = `gallery_${String(num).padStart(2, '0')}.jpg`;
-                img.className = 'gallery-item';
-                img.addEventListener('click', () => openModal(num - 1));
-            }
-            galleryGridContainer.appendChild(img);
-        });
+        // 1페이지(index 0)는 콜라주, 나머지는 그리드
+        if (page === 0) {
+            renderCollage(GALLERY_PAGES[0]);
+            // 그리드 스타일 초기화는 renderCollage 안에서 처리
+        } else {
+            // 그리드 스타일 복원
+            galleryGridContainer.style.display = 'grid';
+            galleryGridContainer.style.position = '';
+            galleryGridContainer.style.height = '';
+
+            const pageItems = GALLERY_PAGES[page];
+            pageItems.forEach(num => {
+                const img = document.createElement('img');
+                if (num === 0) {
+                    img.className = 'gallery-item gallery-item-empty';
+                    img.style.visibility = 'hidden';
+                } else {
+                    img.src = `gallery_${String(num).padStart(2, '0')}.jpg`;
+                    img.className = 'gallery-item';
+                    img.addEventListener('click', () => openModal(num - 1));
+                }
+                galleryGridContainer.appendChild(img);
+            });
+        }
 
         galleryPrevBtn.classList.toggle('disabled', page === 0);
         galleryNextBtn.classList.toggle('disabled', page >= GALLERY_TOTAL_PAGES - 1);
